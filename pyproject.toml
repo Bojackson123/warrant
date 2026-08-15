@@ -10,6 +10,7 @@ license-files = ["LICENSE", "NOTICE"]
 # resolving the same interpreter.
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "psycopg[binary,pool]>=3.3.4",
     "pydantic==2.12.4",
     "pydantic-settings==2.13.1",
 ]
@@ -19,6 +20,7 @@ dev = [
     "pyright==1.1.407",
     "pytest==8.4.2",
     "ruff==0.14.5",
+    "testcontainers[postgres]>=4.15.0",
 ]
 
 [build-system]
@@ -47,3 +49,6 @@ venv = ".venv"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: needs a real Postgres, started as a container. Requires a running Docker.",
+]

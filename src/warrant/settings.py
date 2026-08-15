@@ -44,6 +44,18 @@ class Settings(BaseSettings):
     # Matches the credentials the local Compose database is brought up with.
     database_url: str = "postgresql://warrant:warrant@localhost:5432/warrant"
 
+    # One process serves one console. A minimum above zero keeps the first request off the
+    # connection-establishment path; the maximum is a ceiling nothing at this size approaches,
+    # present so that a leak shows up as a pool timeout naming the pool rather than as Postgres
+    # refusing connections to everything on the machine.
+    db_pool_min_size: int = 1
+    db_pool_max_size: int = 8
+
+    # How long startup waits for the database to accept connections. Compose starts the
+    # application once the database reports healthy, so this covers a restart racing recovery
+    # rather than a cold initdb.
+    db_connect_timeout_seconds: float = 30.0
+
     catalog_path: Path = REPO_ROOT / "data" / "catalog" / "NIST_SP-800-53_rev5_catalog.json"
     embedder_config_path: Path = REPO_ROOT / "data" / "embedder.json"
 

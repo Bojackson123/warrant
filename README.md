@@ -8,13 +8,16 @@ does not make are written once the walking skeleton runs end to end.
 
 ## Development
 
-Requires [`uv`](https://docs.astral.sh/uv/) and GNU `make`.
+Requires [`uv`](https://docs.astral.sh/uv/), GNU `make`, and Docker.
 
 ```
 make sync       # create the environment from the lockfile
 make lint       # ruff check and format check
 make typecheck  # pyright
-make test       # pytest
+make test       # pytest — the integration tests start a real Postgres, so Docker must be running
+make db-up      # start Postgres with pgvector
+make migrate    # bring the database up to this build's schema
+make db-down    # stop it and delete the volume
 ```
 
 ## Licence

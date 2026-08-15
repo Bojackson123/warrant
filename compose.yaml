@@ -1,0 +1,61 @@
+# The stack a reviewer runs. Today it is the database alone; the API and the console join it
+# once they exist.
+#
+#     docker compose up -d db
+#
+# No --env-file, no bootstrap script, no .env. Every value below has a default, and those
+# defaults are the ones src/warrant/settings.py already assumes. A reviewer who has read
+# nothing gets a working database, because the alternative is a project nobody runs.
+
+#  Without this the project name comes from the directory, which is only "warrant" by
+#  coincidence of where the repository was cloned.
+name: warrant
+
+services:
+
+  db:
+    #  Pinned to the patch, and to the Debian base rather than the floating alias, so that the
+    #  integration tests, this file and any later container all resolve one image. "pg17" would
+    #  quietly follow upstream onto a new base the day they change the default.
+    image: pgvector/pgvector:0.8.6-pg17-trixie
+
+    environment:
+      #  Defaulted rather than required. The ${VAR:?} form, which fails the whole command when
+      #  a variable is missing, is the right default for a deployment with a generated
+      #  password; here the promise is that nothing has to be configured before this file
+      #  works, so these fall back to the same values the application's default connection
+      #  string already carries. They are development credentials for a port bound to
+      #  loopback, and they are not a secret pretending otherwise.
+      POSTGRES_USER: ${POSTGRES_USER:-warrant}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-warrant}
+      POSTGRES_DB: ${POSTGRES_DB:-warrant}
+
+    ports:
+      #  127.0.0.1, never 0.0.0.0. Published at all because ingest and the tests run on the
+      #  host during development and the default connection string points here; bound to
+      #  loopback because a Postgres reachable from the network is not a default worth
+      #  shipping to anyone who runs this.
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      #  A named volume rather than a bind mount: Postgres chowns this directory on first
+      #  init, which against a Windows or macOS host path either fails outright or leaves a
+      #  directory the container cannot own.
+      - pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      #  -d is the point of this line. Plain pg_isready answers as soon as the server accepts
+      #  connections, which during first init is several seconds before the database named
+      #  here exists -- and that gap is exactly the window an application starts in. $$ escapes
+      #  the substitution so the container's shell expands these, not Compose.
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+#  No restart: policy. A database that cannot start should stop and say so; restart: always
+#  turns a container that is failing for a reason into one that merely looks busy.
+
+volumes:
+  pgdata:
