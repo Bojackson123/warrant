@@ -1,0 +1,47 @@
+[project]
+name = "warrant"
+version = "0.1.0"
+description = "Retrieval question answering over the NIST SP 800-53 catalog, with citations that can be checked."
+readme = "README.md"
+# Upper-bounded on purpose. An unbounded floor is not a pin, and the fixture manifest's
+# determinism claim is only as strong as CI, the container and a developer machine all
+# resolving the same interpreter.
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pydantic==2.12.4",
+    "pydantic-settings==2.13.1",
+]
+
+[dependency-groups]
+dev = [
+    "pyright==1.1.407",
+    "pytest==8.4.2",
+    "ruff==0.14.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/warrant"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+# tools/ is committed evidence rather than shipped code, but it is still Python in this
+# repository and it holds to the same bar.
+include = ["pyproject.toml", "src/**/*.py", "tests/**/*.py", "tools/**/*.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pyright]
+include = ["src", "tests", "tools"]
+typeCheckingMode = "standard"
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

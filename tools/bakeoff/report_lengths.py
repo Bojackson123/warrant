@@ -39,9 +39,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=here / "lengths.json")
     args = parser.parse_args(argv)
 
-    from transformers import AutoTokenizer
+    # Imported here rather than at module scope, and not a project dependency: the model
+    # backend is installed ad hoc to re-derive these numbers, never by the running system.
+    from transformers import AutoTokenizer  # pyright: ignore[reportMissingImports]
 
-    texts = [json.loads(line)["text"] for line in args.corpus.read_text(encoding="utf-8").splitlines()]
+    texts = [
+        json.loads(line)["text"] for line in args.corpus.read_text(encoding="utf-8").splitlines()
+    ]
     report: dict[str, object] = {"corpus": str(args.corpus), "documents": len(texts)}
     rows = []
 

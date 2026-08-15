@@ -144,7 +144,9 @@ def resolve_markers(text: str, params: dict[str, dict[str, Any]], depth: int = 0
     return MARKER.sub(replace, text)
 
 
-def collect_prose(parts: list[dict[str, Any]] | None, params: dict[str, dict[str, Any]]) -> list[str]:
+def collect_prose(
+    parts: list[dict[str, Any]] | None, params: dict[str, dict[str, Any]]
+) -> list[str]:
     """Flatten a part subtree into prose lines, prefixed by their list labels."""
     lines: list[str] = []
     for part in parts or []:
