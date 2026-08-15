@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate up
+.PHONY: sync lint format typecheck test db-up db-down migrate catalog up
 
 sync:
 	uv sync
@@ -28,6 +28,12 @@ db-down:
 
 migrate:
 	uv run python -m warrant.db
+
+# Checks the vendored catalog against its pin and prints what it contains. Reads one file and
+# touches nothing else, so it answers "is the corpus the one this build was written for?"
+# without a database or a network.
+catalog:
+	uv run python -m warrant.ingest.catalog_report
 
 # Brings up everything the compose file defines. That is the database alone today; the API and
 # the console join it once they exist.

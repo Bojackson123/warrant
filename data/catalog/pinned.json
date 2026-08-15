@@ -1,0 +1,36 @@
+{
+  "_comment": [
+    "The pinned corpus. This file is the authoritative record of which catalog the system",
+    "was built against; PINNED.md beside it explains why the file is vendored and what is",
+    "irregular about it, and restates none of these values.",
+    "",
+    "NIST publishes new releases. An unpinned catalog means the corpus can change under a",
+    "green build, and anything scored against it is then silently measuring a different",
+    "document. The hash is what makes that visible; the counts are what make a swapped",
+    "release visible even when it parses cleanly."
+  ],
+  "file": "NIST_SP-800-53_rev5_catalog.json",
+  "source_repository": "github.com/usnistgov/oscal-content",
+  "source_commit": "78650f02ad9321bb7b817846f8fbd4f2bcd620de",
+  "source_path": "nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json",
+  "release_tag": "v1.5.0",
+  "catalog_version": "5.2.0",
+  "last_modified": "2026-05-11T16:01:09.00000-00:00",
+  "oscal_version": "1.2.2",
+  "size_bytes": 10442037,
+  "sha256": "01f37cf90ea99d92242c936cbfbdebcc338eef1f71454e2acac36cc56e9bc062",
+  "expected_counts": {
+    "_comment": [
+      "What the loader finds in the file above. Checked by `make catalog` and by the tests.",
+      "`live` is `base_controls + enhancements - withdrawn`, and it is the number of records",
+      "the chunker is expected to produce; `parts` counts every part at every depth."
+    ],
+    "groups": 20,
+    "base_controls": 324,
+    "enhancements": 872,
+    "withdrawn": 182,
+    "live": 1014,
+    "parameters": 1600,
+    "parts": 12729
+  }
+}

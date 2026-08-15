@@ -57,6 +57,7 @@ class Settings(BaseSettings):
     db_connect_timeout_seconds: float = 30.0
 
     catalog_path: Path = REPO_ROOT / "data" / "catalog" / "NIST_SP-800-53_rev5_catalog.json"
+    catalog_pin_path: Path = REPO_ROOT / "data" / "catalog" / "pinned.json"
     embedder_config_path: Path = REPO_ROOT / "data" / "embedder.json"
 
     @property
