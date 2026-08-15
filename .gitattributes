@@ -1,0 +1,9 @@
+# Normalise line endings so a checkout is the same on every platform.
+* text=auto eol=lf
+
+# Files whose SHA-256 is recorded as provenance are exempt from any conversion at all.
+# Git rewriting a line ending would silently invalidate a hash that other documents cite,
+# which is the one failure this repository cannot tolerate quietly.
+data/catalog/*.json      -text
+tools/bakeoff/corpus.jsonl   -text
+tools/bakeoff/queries.jsonl  -text

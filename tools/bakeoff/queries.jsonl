@@ -1,0 +1,42 @@
+{"query": "Who has to sign off before a new user account can be created?", "relevant_ids": ["ac-2"], "note": "AC-2"}
+{"query": "What has to happen to an account once the person leaves the organisation?", "relevant_ids": ["ps-4", "ac-2"], "note": "PS-4, AC-2"}
+{"query": "What should be done about accounts nobody has signed into for months?", "relevant_ids": ["ac-2.3"], "note": "AC-2(3) - near miss with AC-2"}
+{"query": "Should a workstation lock itself if the user walks away from it?", "relevant_ids": ["ac-11"], "note": "AC-11"}
+{"query": "Does the screen have to be blanked so nothing on it is readable once the session is locked?", "relevant_ids": ["ac-11.1"], "note": "AC-11(1) - near miss with AC-11"}
+{"query": "How many bad password attempts in a row before we shut someone out?", "relevant_ids": ["ac-7"], "note": "AC-7"}
+{"query": "Should administrators have day-to-day accounts separate from their elevated ones?", "relevant_ids": ["ac-6"], "note": "AC-6"}
+{"query": "What covers staff connecting in from home or a hotel?", "relevant_ids": ["ac-17"], "note": "AC-17"}
+{"query": "Do employees need to be taught how to spot a phishing attempt?", "relevant_ids": ["at-2.3"], "note": "AT-2(3) - near miss with AT-2"}
+{"query": "What fields does every log entry have to carry?", "relevant_ids": ["au-3"], "note": "AU-3"}
+{"query": "What happens when there is no room left to write logs?", "relevant_ids": ["au-5", "au-4"], "note": "AU-5, AU-4"}
+{"query": "How far back do we need to be able to go in our logs?", "relevant_ids": ["au-11"], "note": "AU-11"}
+{"query": "Somebody actually has to read the logs and act on what they find - where is that written?", "relevant_ids": ["au-6"], "note": "AU-6"}
+{"query": "Can a tool correlate log data for us instead of a person doing it by hand?", "relevant_ids": ["au-6.1"], "note": "AU-6(1) - near miss with AU-6"}
+{"query": "Do the clocks across our servers need to agree with each other?", "relevant_ids": ["au-8"], "note": "AU-8"}
+{"query": "Do we have to keep a list of everything connected to the network?", "relevant_ids": ["cm-8"], "note": "CM-8"}
+{"query": "Are staff allowed to install whatever software they want on their laptop?", "relevant_ids": ["cm-11"], "note": "CM-11"}
+{"query": "Do we have to switch off ports and services we are not using?", "relevant_ids": ["cm-7"], "note": "CM-7"}
+{"query": "How often should we go back and re-check that unneeded services are still switched off?", "relevant_ids": ["cm-7.1"], "note": "CM-7(1) - near miss with CM-7"}
+{"query": "How do we know a backup will actually restore when we need it?", "relevant_ids": ["cp-9.1"], "note": "CP-9(1) - near miss with CP-9"}
+{"query": "Do we need a written plan for keeping things running through an outage?", "relevant_ids": ["cp-2"], "note": "CP-2"}
+{"query": "Is a second factor required for people with elevated access?", "relevant_ids": ["ia-2.1"], "note": "IA-2(1) - near miss with IA-2(2)"}
+{"query": "Is a second factor required for ordinary staff and not only for administrators?", "relevant_ids": ["ia-2.2"], "note": "IA-2(2) - near miss with IA-2(1)"}
+{"query": "What are the rules on how long a password has to be and whether it can be reused?", "relevant_ids": ["ia-5.1"], "note": "IA-5(1)"}
+{"query": "Should what the user types be hidden as they type it in?", "relevant_ids": ["ia-6"], "note": "IA-6"}
+{"query": "Who do we have to tell when something goes wrong, and how fast?", "relevant_ids": ["ir-6"], "note": "IR-6"}
+{"query": "Can a supplier dial in from outside to service equipment?", "relevant_ids": ["ma-4"], "note": "MA-4"}
+{"query": "How do we make sure a retired disk cannot be read by whoever ends up with it?", "relevant_ids": ["mp-6"], "note": "MP-6"}
+{"query": "Do we have to check somebody's background before letting them near the system?", "relevant_ids": ["ps-3"], "note": "PS-3"}
+{"query": "How regularly do we need to sweep our estate for known weaknesses?", "relevant_ids": ["ra-5"], "note": "RA-5"}
+{"query": "Does the scanning tool itself need refreshing as new weaknesses are published?", "relevant_ids": ["ra-5.2"], "note": "RA-5(2) - near miss with RA-5"}
+{"query": "What covers the firewalls and gateways sitting at the edge of our network?", "relevant_ids": ["sc-7"], "note": "SC-7"}
+{"query": "Does traffic moving between our systems need protecting on the wire?", "relevant_ids": ["sc-8"], "note": "SC-8"}
+{"query": "Do we specifically have to encrypt data while it is being sent, rather than protect it some other way?", "relevant_ids": ["sc-8.1"], "note": "SC-8(1) - near miss with SC-8"}
+{"query": "What covers information sitting on a disk rather than moving over a link?", "relevant_ids": ["sc-28"], "note": "SC-28"}
+{"query": "How quickly do we have to fix a weakness once we know about it?", "relevant_ids": ["si-2"], "note": "SI-2"}
+{"query": "Do we need anti-malware running on servers and laptops?", "relevant_ids": ["si-3"], "note": "SI-3"}
+{"query": "Where does it say to watch traffic entering and leaving for signs of attack?", "relevant_ids": ["si-4.4"], "note": "SI-4(4) - near miss with SI-4"}
+{"query": "Are we expected to subscribe to vendor security bulletins?", "relevant_ids": ["si-5"], "note": "SI-5"}
+{"query": "Should an application check that what a user submits is well formed before acting on it?", "relevant_ids": ["si-10"], "note": "SI-10"}
+{"query": "How do we know the hardware we bought is genuine and not a counterfeit?", "relevant_ids": ["sr-11"], "note": "SR-11"}
+{"query": "Is there a requirement to have someone try to break in on purpose?", "relevant_ids": ["ca-8"], "note": "CA-8"}

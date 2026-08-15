@@ -1,0 +1,46 @@
+{
+  "corpus": "C:\\Users\\rashi\\source\\repos\\warrant\\tools\\bakeoff\\corpus.jsonl",
+  "documents": 1014,
+  "candidates": [
+    {
+      "label": "MiniLM-L6-v2",
+      "window": 256,
+      "median": 136,
+      "p90": 348,
+      "p99": 826,
+      "max": 1250,
+      "over_window": 186,
+      "over_window_pct": 18.3
+    },
+    {
+      "label": "bge-small-en-v1.5",
+      "window": 512,
+      "median": 136,
+      "p90": 348,
+      "p99": 826,
+      "max": 1250,
+      "over_window": 26,
+      "over_window_pct": 2.6
+    },
+    {
+      "label": "bge-base-en-v1.5",
+      "window": 512,
+      "median": 136,
+      "p90": 348,
+      "p99": 826,
+      "max": 1250,
+      "over_window": 26,
+      "over_window_pct": 2.6
+    },
+    {
+      "label": "nomic-embed-text-v1.5",
+      "window": 8192,
+      "median": 136,
+      "p90": 348,
+      "p99": 826,
+      "max": 1250,
+      "over_window": 0,
+      "over_window_pct": 0.0
+    }
+  ]
+}

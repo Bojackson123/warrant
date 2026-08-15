@@ -1,0 +1,22 @@
+{
+  "_comment": [
+    "The pinned embedding model. Changing anything here invalidates the stored corpus",
+    "vectors, the stored query vectors, and every recorded generation downstream of them,",
+    "because retrieved control ids change and retrieved text is part of the hashed prompt.",
+    "There is no partial re-record for an embedder change. See docs/decisions/embedder.md",
+    "for what was measured before pinning it."
+  ],
+  "name": "BAAI/bge-base-en-v1.5",
+  "revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "dimensions": 768,
+  "max_sequence_length": 512,
+  "normalize": true,
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "expected_storage": {
+    "_comment": "Checked at ingest. A large divergence means the chunker changed.",
+    "chunks": 1014,
+    "bytes_per_vector_float32": 3072,
+    "corpus_bytes_float32": 3115008
+  }
+}

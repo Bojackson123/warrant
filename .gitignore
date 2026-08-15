@@ -1,0 +1,15 @@
+# Private planning material. Never committed, not now and not later.
+internal/
+Warrant_Project_Plan.md
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Local configuration and data volumes
+.env
+*.env.local
+pgdata/
