@@ -3,6 +3,8 @@ name = "warrant"
 version = "0.1.0"
 description = "Retrieval question answering over the NIST SP 800-53 catalog, with citations that can be checked."
 readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 # Upper-bounded on purpose. An unbounded floor is not a pin, and the fixture manifest's
 # determinism claim is only as strong as CI, the container and a developer machine all
 # resolving the same interpreter.

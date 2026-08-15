@@ -1,0 +1,32 @@
+Warrant
+Copyright 2026 Rashid Al-Marri
+
+This product includes software developed by Rashid Al-Marri, licensed under the
+Apache License, Version 2.0. See LICENSE.
+
+--------------------------------------------------------------------------------
+Third-party content
+--------------------------------------------------------------------------------
+
+The Apache License above covers the source code in this repository. It does not
+cover the third-party content vendored alongside it, listed here.
+
+NIST SP 800-53 Rev 5 control catalog (OSCAL JSON)
+  data/catalog/NIST_SP-800-53_rev5_catalog.json
+
+  A work of the U.S. National Institute of Standards and Technology, obtained
+  unmodified from github.com/usnistgov/oscal-content. Works prepared by officers
+  and employees of the U.S. Government are not subject to copyright protection
+  within the United States (17 U.S.C. 105).
+
+  It is vendored rather than fetched so the system can be brought up with no
+  network and no credentials. The exact release, source commit and SHA-256 are
+  recorded in data/catalog/PINNED.md; that pin, not this file, is the thing to
+  read to know which document any result was measured against.
+
+Questions and expected control identifiers
+  tools/bakeoff/queries.jsonl
+
+  Written for this project and covered by the Apache License, but noted here
+  because tools/bakeoff/corpus.jsonl sitting beside it is derived from the NIST
+  catalog above and carries that document's status rather than this one's.

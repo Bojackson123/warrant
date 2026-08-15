@@ -16,3 +16,12 @@ make lint       # ruff check and format check
 make typecheck  # pyright
 make test       # pytest
 ```
+
+## Licence
+
+Source code is licensed under the [Apache License 2.0](LICENSE).
+
+The NIST SP 800-53 catalog vendored under `data/catalog/` is not covered by that
+licence: it is a U.S. Government work, not subject to domestic copyright, and is
+reproduced unmodified. [`NOTICE`](NOTICE) records what came from where, and
+[`data/catalog/PINNED.md`](data/catalog/PINNED.md) records exactly which release.
