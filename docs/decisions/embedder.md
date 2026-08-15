@@ -165,6 +165,14 @@ The 2.6% that bge-base does truncate is a real, bounded limitation: 26 of the lo
 controls are embedded from their first 512 tokens. That is a constraint the shipped chunker
 has to answer with an explicit split rule, not something to leave implicit.
 
+**It is answered in [`chunking.md`](chunking.md), and the answer is that nothing is split.**
+The chunker fixes the assembly order instead — identifier, title, control statement, then
+discussion — so that a cut at 512 tokens always removes the tail of the discussion and never the
+requirement. Splitting at the statement/guidance boundary was measured and does not remove the
+truncation either; splitting far enough to remove it would make chunk text a function of the
+embedding model. The numbers above were measured with this truncation in place, so they describe
+the shipped corpus rather than an idealised one.
+
 ---
 
 ## Storage
