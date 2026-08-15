@@ -15,6 +15,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 Mode = Literal["live", "replay"]
@@ -59,6 +60,19 @@ class Settings(BaseSettings):
     catalog_path: Path = REPO_ROOT / "data" / "catalog" / "NIST_SP-800-53_rev5_catalog.json"
     catalog_pin_path: Path = REPO_ROOT / "data" / "catalog" / "pinned.json"
     embedder_config_path: Path = REPO_ROOT / "data" / "embedder.json"
+
+    # Where the embedding weights are cached. `None` means the machine's ordinary Hugging Face
+    # cache, which is where a developer who has used these models before already has them; a
+    # container sets this to a path inside the image, populated at build time. Either way the
+    # weights are present before anything runs, because a first-run download is exactly what
+    # breaks the promise that this works with no network.
+    model_cache_dir: Path | None = None
+
+    # Chunks embedded per forward pass. Trades peak memory against throughput and nothing else:
+    # the model is deterministic per input, so this does not change a stored vector. Bounded
+    # because zero and negatives are not slow or wasteful but meaningless, and they surface as an
+    # exception out of `range` or `numpy` with nothing in it naming the variable that caused it.
+    embed_batch_size: int = Field(default=32, gt=0)
 
     @property
     def mode(self) -> Mode:

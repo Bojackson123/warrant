@@ -10,9 +10,19 @@ license-files = ["LICENSE", "NOTICE"]
 # resolving the same interpreter.
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    # Declared rather than inherited from torch. Vectors are numpy arrays across the seam between
+    # the embedder, the pipeline and the query path, so this is a direct dependency of ours.
+    "numpy>=2.0",
+    "pgvector>=0.4.1",
     "psycopg[binary,pool]>=3.3.4",
     "pydantic==2.12.4",
     "pydantic-settings==2.13.1",
+    # Pinned exactly rather than floored. The stored vectors are a function of these two
+    # versions as much as of the model pin: a change to either can move the last bits of an
+    # embedding, and every recorded model call downstream is keyed on text retrieved by those
+    # vectors. These are the versions the embedding comparison was measured under.
+    "sentence-transformers==5.7.0",
+    "torch==2.9.1",
 ]
 
 [dependency-groups]
@@ -22,6 +32,18 @@ dev = [
     "ruff==0.14.5",
     "testcontainers[postgres]>=4.15.0",
 ]
+
+# Torch from the CPU wheel index rather than from PyPI. On Linux the PyPI wheel bundles CUDA
+# and is well over a gigabyte, for hardware nothing here uses -- the embedding model was
+# chosen on CPU timings and runs on CPU in the container. `explicit = true` keeps every other
+# package on PyPI; only the packages named below are looked for here.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
 
 [build-system]
 requires = ["hatchling"]
@@ -51,4 +73,5 @@ venv = ".venv"
 testpaths = ["tests"]
 markers = [
     "integration: needs a real Postgres, started as a container. Requires a running Docker.",
+    "model: needs the pinned embedding weights in the local cache. `make model` fetches them.",
 ]

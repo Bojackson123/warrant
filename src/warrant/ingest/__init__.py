@@ -7,7 +7,10 @@ carries a version because everything downstream is a function of the text it pro
 control index resolves every published form of an identifier to one canonical id. The chunker
 assembles all three into the records the corpus is made of — one per live control and per live
 enhancement, so that a chunk's control id is copied from the source rather than recovered from
-its text — and carries a version of its own for the same reason the resolver does.
+its text — and carries a version of its own for the same reason the resolver does. The pipeline
+is the last step: it embeds those records with the pinned model and writes them, keyed on the
+chunker's identifiers so that running it twice leaves one corpus, and records what produced them
+so that a corpus built under a superseded pin can be refused rather than searched.
 """
 
 from warrant.ingest.catalog import (
@@ -44,6 +47,14 @@ from warrant.ingest.parameters import (
     ParameterResolver,
     resolution_fingerprint,
 )
+from warrant.ingest.pipeline import (
+    CorpusProvenance,
+    IngestError,
+    IngestReport,
+    corpus_fingerprint,
+    ingest,
+    read_provenance,
+)
 
 __all__ = [
     "CHUNKER_VERSION",
@@ -57,7 +68,10 @@ __all__ = [
     "ControlIdError",
     "ControlIdentity",
     "ControlIndex",
+    "CorpusProvenance",
     "Group",
+    "IngestError",
+    "IngestReport",
     "Parameter",
     "ParameterResolutionError",
     "ParameterResolver",
@@ -67,9 +81,12 @@ __all__ = [
     "chunk_catalog",
     "chunker_fingerprint",
     "control_id_of_part",
+    "corpus_fingerprint",
     "get_catalog",
     "get_control_index",
+    "ingest",
     "load_catalog",
     "parse_catalog",
+    "read_provenance",
     "resolution_fingerprint",
 ]

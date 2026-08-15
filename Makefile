@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate catalog chunks up
+.PHONY: sync lint format typecheck test db-up db-down migrate catalog chunks model ingest up
 
 sync:
 	uv sync
@@ -40,6 +40,17 @@ catalog:
 # answers "what is in the corpus?" before there is anywhere to put it.
 chunks:
 	uv run python -m warrant.ingest.chunk_report
+
+# The only target that needs a network. Fetches the pinned embedding weights into the local cache
+# once, so that everything after it runs offline -- a model that downloads itself on first use is
+# what would break the promise that this works with no key and no connection.
+model:
+	uv run python -m warrant.embedding
+
+# Embeds the catalog and writes the corpus. Migrates first, so this works against an empty
+# database in one command. Needs `make model` to have run once, and no network of its own.
+ingest:
+	uv run python -m warrant.ingest
 
 # Brings up everything the compose file defines. That is the database alone today; the API and
 # the console join it once they exist.

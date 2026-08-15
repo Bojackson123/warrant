@@ -38,7 +38,11 @@ class EmbedderConfig(BaseModel):
     query_prefix: str = ""
     document_prefix: str = ""
 
+    # Lifted out of the file's `expected_storage` block rather than nested, because they are what
+    # the ingest report checks itself against and a caller should not have to know the shape of
+    # the JSON to reach them. Excluded from serialisation: they describe a corpus, not the model.
     expected_chunks: int | None = Field(default=None, exclude=True)
+    expected_corpus_bytes: int | None = Field(default=None, exclude=True)
 
 
 @lru_cache(maxsize=1)
@@ -56,5 +60,9 @@ def load_embedder_config(path: Path) -> EmbedderConfig:
     expected = document.get("expected_storage", {})
 
     return EmbedderConfig.model_validate(
-        {**document, "expected_chunks": expected.get("chunks")},
+        {
+            **document,
+            "expected_chunks": expected.get("chunks"),
+            "expected_corpus_bytes": expected.get("corpus_bytes_float32"),
+        },
     )

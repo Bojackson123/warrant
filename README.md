@@ -18,7 +18,17 @@ make test       # pytest — the integration tests start a real Postgres, so Doc
 make db-up      # start Postgres with pgvector
 make migrate    # bring the database up to this build's schema
 make db-down    # stop it and delete the volume
+
+make model      # fetch the pinned embedding weights — the only step that needs a network
+make ingest     # embed the catalog and build the corpus; migrates first, so an empty
+                # database is fine. Runs offline, on CPU, and takes minutes.
 ```
+
+`make model` runs once per machine. Everything after it — including embedding a question typed
+into the console — runs from the local cache with no network and no API key, which is the
+property the whole thing is arranged around. Re-running `make ingest` rebuilds the same corpus
+rather than a second copy of it, and prints a fingerprint you can compare across runs to see that
+it did.
 
 ## Licence
 
