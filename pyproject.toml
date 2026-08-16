@@ -13,6 +13,10 @@ dependencies = [
     # Declared rather than inherited from torch. Vectors are numpy arrays across the seam between
     # the embedder, the pipeline and the query path, so this is a direct dependency of ours.
     "numpy>=2.0",
+    # The generation provider's SDK, used by the live path only. Imported inside the live client
+    # rather than at module scope, so a machine with no key never needs it -- which is the whole
+    # point of the replay path and worth being structurally true rather than merely usually true.
+    "openai>=2.0",
     "pgvector>=0.4.1",
     "psycopg[binary,pool]>=3.3.4",
     "pydantic==2.12.4",

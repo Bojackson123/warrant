@@ -61,6 +61,12 @@ class Settings(BaseSettings):
     catalog_pin_path: Path = REPO_ROOT / "data" / "catalog" / "pinned.json"
     embedder_config_path: Path = REPO_ROOT / "data" / "embedder.json"
 
+    # The generation model and the sampling parameters every request carries. A pin rather than
+    # settings of its own: both halves are hashed into the key a recorded call is stored under, so
+    # two machines reading different values would key their fixtures differently and neither would
+    # notice locally. What lives in `Settings` is what may legitimately differ between machines.
+    model_config_path: Path = REPO_ROOT / "data" / "model.json"
+
     # The record of the two above and of the code that reads them, checked as a set. Beside the
     # pins it covers rather than beside the recorded model calls it governs, because the things
     # that read it -- ingest, and anything validating before it serves or measures -- do not read a

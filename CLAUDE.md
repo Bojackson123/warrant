@@ -33,6 +33,30 @@ git commit -m "Add chunker following catalog control and enhancement structure"
 The same rule holds in the other direction: do not name the planning documents, their
 filenames, or their directory in committed text.
 
+## Commit messages state the feature, not the reasoning
+
+Conventional prefix (`feat:`, `fix:`, `docs:`, `refactor:`), then the change in plain terms.
+At most one short body line, and only when it adds a fact the subject cannot carry. No
+rationale essays, no restated docstrings, no explanation of what would have gone wrong.
+
+**Why:** the reasoning belongs in the code, where it stays next to what it explains. A commit
+message repeating it is a second copy that drifts, and it buries the one thing a `git log`
+reader is scanning for — what changed.
+
+```
+# Bad
+feat: answer from recorded model calls keyed on the whole request
+
+Keying on a subset returns a stale answer after a prompt edit; hashing the
+complete request makes that a miss, which the console degrades on and anything
+measuring quality fails on.
+
+# Good
+feat: add model client with live and replay paths
+
+Records are keyed on a SHA-256 of the complete request.
+```
+
 ## Related repositories
 
 The embedding bake-off harness is a standalone project in a sibling repository

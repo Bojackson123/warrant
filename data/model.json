@@ -1,0 +1,37 @@
+{
+  "_comment": [
+    "The pinned generation model and the sampling parameters every request is made with.",
+    "Both halves are inputs to the key a recorded call is stored under, so changing anything",
+    "here means every recorded answer misses rather than being served stale. That is the",
+    "intended behaviour and it is why there is no entry for this file in manifest.json: the",
+    "mismatch announces itself through the key, which is the mechanism that has to be correct",
+    "anyway.",
+    "",
+    "`version` is the exact string sent to the provider -- a dated snapshot rather than a",
+    "floating alias, because an alias is repointed at a new model without anything in this",
+    "repository changing, which is precisely the silent substitution the pin exists to prevent.",
+    "`name` is never sent; it is the family a reader recognises.",
+    "",
+    "Every parameter under `sampling` is sent explicitly on every request, including ones whose",
+    "value equals the provider's current default. Relying on a default would leave a value that",
+    "decides the output outside the key, free to move when the provider moves it.",
+    "",
+    "The model is the cheapest tier that still follows the instruction to decline when the",
+    "retrieved text does not support an answer -- the behaviour the whole citation claim rests",
+    "on. Nothing has measured that yet; once there is a graded question set, this pin is what",
+    "that measurement is against, and moving it is a re-record."
+  ],
+  "name": "gpt-4.1-mini",
+  "version": "gpt-4.1-mini-2025-04-14",
+  "sampling": {
+    "_comment": [
+      "Temperature zero and a fixed seed narrow the output distribution; they do not make the",
+      "provider deterministic, and nothing here claims they do. Determinism comes from replaying",
+      "a recorded answer, not from asking nicely."
+    ],
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "seed": 0,
+    "max_output_tokens": 1024
+  }
+}

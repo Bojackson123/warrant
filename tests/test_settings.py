@@ -64,6 +64,7 @@ def test_default_paths_do_not_depend_on_the_working_directory() -> None:
     assert settings.catalog_path.name == "NIST_SP-800-53_rev5_catalog.json"
     assert settings.catalog_pin_path.name == "pinned.json"
     assert settings.embedder_config_path.name == "embedder.json"
+    assert settings.model_config_path.name == "model.json"
 
 
 def test_get_settings_is_cached() -> None:
