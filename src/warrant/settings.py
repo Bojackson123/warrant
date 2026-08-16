@@ -61,6 +61,12 @@ class Settings(BaseSettings):
     catalog_pin_path: Path = REPO_ROOT / "data" / "catalog" / "pinned.json"
     embedder_config_path: Path = REPO_ROOT / "data" / "embedder.json"
 
+    # The record of the two above and of the code that reads them, checked as a set. Beside the
+    # pins it covers rather than beside the recorded model calls it governs, because the things
+    # that read it -- ingest, and anything validating before it serves or measures -- do not read a
+    # recorded call.
+    manifest_path: Path = REPO_ROOT / "data" / "manifest.json"
+
     # Where the embedding weights are cached. `None` means the machine's ordinary Hugging Face
     # cache, which is where a developer who has used these models before already has them; a
     # container sets this to a path inside the image, populated at build time. Either way the

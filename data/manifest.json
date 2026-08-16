@@ -1,0 +1,138 @@
+{
+  "_comment": [
+    "The pinned inputs, as a set. Everything this project stores -- the corpus vectors, the",
+    "recorded query vectors, the recorded model answers and the grades over them -- is a",
+    "function of the entries below. Each one records what that input currently hashes to, so",
+    "that changing one and forgetting to rebuild what was made with it fails loudly instead of",
+    "passing quietly.",
+    "",
+    "No value here is a copy of a value that lives somewhere else. The catalog's own SHA-256 is",
+    "in catalog/pinned.json and the model's revision is in embedder.json; what an entry holds is",
+    "a digest derived from those at check time. Two records of one number is one record and one",
+    "stale copy, and for the catalog the stale copy would be the one people quote, because that",
+    "hash is computable by anyone who downloads the file.",
+    "",
+    "`identity` is what a person reads and `digest` is what the check enforces, and they are",
+    "compared separately because they fail differently. A moved identity is an announced change",
+    "nobody re-recorded. A moved digest under an unchanged identity is the one a version string",
+    "cannot catch: somebody changed what a module produces and did not say so.",
+    "",
+    "NOT ALL CHANGES HERE COST THE SAME, and `invalidates` on each entry is the record of that.",
+    "A prompt-template change invalidates recorded answers and the grades over them, and leaves",
+    "the corpus alone. AN EMBEDDER CHANGE INVALIDATES EVERYTHING -- corpus vectors, recorded",
+    "query vectors, every recorded answer and every grade -- because different vectors retrieve",
+    "different control ids, and those ids and their text sit inside the prompt every recorded",
+    "call is keyed on. There is no partial re-record for an embedder swap. This file detects the",
+    "mismatch; it cannot repair it.",
+    "",
+    "`identity` and `digest` are null together when this build does not have that input at all.",
+    "The entry still exists, with what it covers and what it costs written down, so that",
+    "building it later is a regeneration of a known entry rather than a new mechanism arriving",
+    "with its cost undecided.",
+    "",
+    "DELIBERATELY ABSENT: the corpus fingerprint. Floating-point results depend on the BLAS",
+    "kernels torch selects for the hardware it is on, so two machines can produce vectors equal",
+    "to every decimal anyone cares about and differing in the last bit. Pinning that number here",
+    "would fail on a second machine for a reason nobody could act on. It is recorded in the",
+    "database by the ingest that produced it, where it means what it can mean: on this machine,",
+    "with these inputs, re-running changed nothing.",
+    "",
+    "ALSO DELIBERATELY ABSENT: library and interpreter versions. pyproject.toml pins torch and",
+    "sentence-transformers exactly and bounds the interpreter, each with a comment saying why.",
+    "The lockfile pins the environment; this file pins the inputs.",
+    "",
+    "`make manifest` checks. `make manifest-write` records a change, and never runs on its own --",
+    "a check that repaired what it found would be a record of whatever was on disk when it ran.",
+    "Its diff belongs in the pull request that explains the change."
+  ],
+  "entries": {
+    "catalog": {
+      "covers": "The pinned NIST SP 800-53 release and the vendored file it was pinned to, including the counts a correct copy parses to.",
+      "identity": "SP 800-53 Rev 5 catalog 5.2.0 (v1.5.0)",
+      "digest": "1ca4e94df7beff83bd6df6edb2be80bd97ff94632bb577a82f3f8a59137ab2e9",
+      "invalidates": [
+        "corpus",
+        "queries",
+        "generation",
+        "judge"
+      ]
+    },
+    "parameter_resolution": {
+      "covers": "How the catalog's parameter markers are rendered into readable slots, over every part at every depth.",
+      "identity": "resolution 1",
+      "digest": "7333dd9ca96294f19fb252c8cc44f0121165f1173f103c2ae18f125475c6ed54",
+      "invalidates": [
+        "corpus",
+        "queries",
+        "generation",
+        "judge"
+      ]
+    },
+    "chunker": {
+      "covers": "How a live control or enhancement becomes a retrievable chunk: its text, its identifiers, and the order they come in.",
+      "identity": "chunker 1",
+      "digest": "778d2b9d8a113306209b0d1457e4e7a634ff4ec49142e53991f25289e244089f",
+      "invalidates": [
+        "corpus",
+        "queries",
+        "generation",
+        "judge"
+      ]
+    },
+    "embedder": {
+      "covers": "The pinned embedding model, its revision, and every property of it that decides what a vector comes out as.",
+      "identity": "BAAI/bge-base-en-v1.5 @ a5beb1e3",
+      "digest": "ee9f6ea13bf442aad344a87e4d099b612c56a4208c48d070f32320ea94ff2847",
+      "invalidates": [
+        "corpus",
+        "queries",
+        "generation",
+        "judge"
+      ]
+    },
+    "prompt_template": {
+      "_comment": [
+        "Not built. The template that turns retrieved chunks and a question into a request:",
+        "its instructions, its layout, and the order the retrieved text appears in. Recorded",
+        "answers are keyed on the whole rendered request, so one changed character is a miss",
+        "rather than a stale hit -- which is the point, and which is why the cost below is",
+        "already written down."
+      ],
+      "covers": "The template that renders retrieved chunks and a question into the request a model is sent.",
+      "identity": null,
+      "digest": null,
+      "invalidates": [
+        "generation",
+        "judge"
+      ]
+    },
+    "tokenizer": {
+      "_comment": [
+        "Not built. The generation model's own tokenizer, pinned beside the model version.",
+        "A generic or approximate one means counting a number the provider does not bill",
+        "against, so swapping it changes every counted size without changing a stored artefact:",
+        "nothing has to be re-recorded, and every number previously reported is wrong."
+      ],
+      "covers": "The tokenizer prompt sizes are counted with, pinned beside the generation model it belongs to.",
+      "identity": null,
+      "digest": null,
+      "invalidates": [
+        "counts"
+      ]
+    },
+    "judge_prompt": {
+      "_comment": [
+        "Not built. The prompt an automated grader is given to score an answer against the",
+        "controls it cited. Grades are recorded like any other model call, so they are keyed on",
+        "this and a change to it invalidates them -- and only them, because grading reads an",
+        "answer that already exists rather than producing one."
+      ],
+      "covers": "The prompt an automated grader is given to score an answer against the controls it cited.",
+      "identity": null,
+      "digest": null,
+      "invalidates": [
+        "judge"
+      ]
+    }
+  }
+}

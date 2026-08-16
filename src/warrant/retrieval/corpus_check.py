@@ -14,9 +14,10 @@ a corpus this build's citations were not measured against.
 
 **What is deliberately not checked here:** the catalog digest and the chunker fingerprint. Both
 mean re-reading a ten megabyte file and re-chunking it, which is file-level integrity work rather
-than a startup question, and it belongs to the check that owns the pinned inputs as a set. What
-this compares is what is already in memory, so it is cheap enough to run before serving and
-cheap enough to run again.
+than a per-search question, and it belongs to `warrant.manifest`, which owns the pinned inputs as a
+set and is checked once before anything expensive rather than before every question. What this
+compares is what is already in memory, so it is cheap enough to run before serving and cheap
+enough to run again.
 
 Called once, at the point something is about to search — not per query. The corpus does not
 change under a running process.

@@ -19,12 +19,22 @@ make db-up      # start Postgres with pgvector
 make migrate    # bring the database up to this build's schema
 make db-down    # stop it and delete the volume
 
+make manifest   # check every pinned input against the record of what the stored corpus and
+                # the recorded model calls were built from
 make model      # fetch the pinned embedding weights — the only step that needs a network
 make ingest     # embed the catalog and build the corpus; migrates first, so an empty
                 # database is fine. Runs offline, on CPU, and takes minutes.
 make ask Q="how are inactive accounts disabled?"
                 # ask the corpus a question and print the chunks it retrieves
 ```
+
+`make manifest` is the one that refuses. Everything stored here — the corpus vectors and, later,
+the recorded model answers — is a function of the catalog, the parameter resolver, the chunker and
+the embedding model, so changing one of those and forgetting to rebuild what was made with it
+would otherwise be a green build over stale artefacts. `data/manifest.json` records what each of
+those currently hashes to, and the check exits non-zero naming the one that moved and what the
+move invalidates. Recording an intended change is `make manifest-write`, a separate command on
+purpose: a check that repaired what it found would be a record of nothing.
 
 `make model` runs once per machine. Everything after it — including embedding a question typed
 into the console — runs from the local cache with no network and no API key, which is the

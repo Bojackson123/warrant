@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate catalog chunks model ingest ask up
+.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model ingest ask up
 
 sync:
 	uv sync
@@ -28,6 +28,18 @@ db-down:
 
 migrate:
 	uv run python -m warrant.db
+
+# Recomputes every pinned input -- catalog, resolver, chunker, embedding model -- and exits
+# non-zero if one has moved without being re-recorded, naming which and what the move invalidates.
+# Needs no database, no model and no network.
+manifest:
+	uv run python -m warrant.manifest_check
+
+# Records an intended change to those inputs, as a one-line diff per entry. Deliberately separate
+# from the check above and never reached from it: a check that repaired what it found would be a
+# record of whatever was on disk when it ran. The diff belongs in the pull request explaining why.
+manifest-write:
+	uv run python -m warrant.manifest_check --write
 
 # Checks the vendored catalog against its pin and prints what it contains. Reads one file and
 # touches nothing else, so it answers "is the corpus the one this build was written for?"

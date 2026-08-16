@@ -28,6 +28,7 @@ from warrant.embedding import EmbedderError, ProgressCallback, load_embedder
 from warrant.ingest.catalog import CatalogError, load_catalog
 from warrant.ingest.chunker import Chunk, chunk_catalog, chunker_fingerprint
 from warrant.ingest.pipeline import IngestError, IngestReport, ingest
+from warrant.manifest import ManifestError, verify_manifest
 from warrant.settings import get_settings
 
 # Progress is printed at most this often. A line per batch is thirty-odd lines of noise; a line
@@ -42,6 +43,12 @@ def main() -> int:
     try:
         pin = get_catalog_pin()
         config = get_embedder_config()
+
+        # Before anything else, because it is the check that covers the inputs as a set. The
+        # catalog hash and the chunker fingerprint below are computed a second time by it; that is
+        # seconds against the ten minutes this command would otherwise spend embedding a corpus out
+        # of a chunker or a resolver nobody has re-recorded against.
+        verify_manifest()
 
         catalog_sha256 = verify_catalog(settings.catalog_path, pin)
         catalog = load_catalog(settings.catalog_path)
@@ -89,6 +96,7 @@ def main() -> int:
         CatalogPinError,
         EmbedderError,
         IngestError,
+        ManifestError,
         MigrationSetError,
         MigrationStateError,
         SchemaDimensionError,
