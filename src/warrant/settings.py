@@ -74,6 +74,22 @@ class Settings(BaseSettings):
     # exception out of `range` or `numpy` with nothing in it naming the variable that caused it.
     embed_batch_size: int = Field(default=32, gt=0)
 
+    # How many chunks a question retrieves. Not a literal buried in a query, because it is the
+    # number every retrieval measurement is relative to: a recall@5 baseline and a recall@10
+    # measurement are not comparable, so moving this re-baselines rather than compares. It is
+    # reported alongside every retrieval for that reason.
+    #
+    # Ten is a measured point rather than a round one. The embedding comparison swept k over
+    # 1, 3, 5 and 10 on this corpus, and recall climbs from 0.679 at five to 0.774 at ten --
+    # see docs/decisions/embedder.md, which says outright that five is not obviously right.
+    # What the extra five chunks cost is prompt: roughly twice the retrieved text in every
+    # request, which is counted locally and visible rather than silent.
+    #
+    # Bounded below for the reason the batch size is: zero retrieves nothing and negatives are
+    # meaningless, and both surface as an empty result rather than as an error naming the
+    # variable that caused it.
+    retrieval_k: int = Field(default=10, gt=0)
+
     @property
     def mode(self) -> Mode:
         """Whether model calls go to the provider or come from recorded fixtures.

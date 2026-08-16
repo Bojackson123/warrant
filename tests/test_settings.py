@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from warrant.settings import Settings, get_settings
 
@@ -19,6 +20,7 @@ def _clean_environment(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """
     monkeypatch.delenv("WARRANT_MODEL_API_KEY", raising=False)
     monkeypatch.delenv("WARRANT_DATABASE_URL", raising=False)
+    monkeypatch.delenv("WARRANT_RETRIEVAL_K", raising=False)
     monkeypatch.chdir(tmp_path)
     get_settings.cache_clear()
 
@@ -66,3 +68,20 @@ def test_default_paths_do_not_depend_on_the_working_directory() -> None:
 
 def test_get_settings_is_cached() -> None:
     assert get_settings() is get_settings()
+
+
+def test_k_has_a_default_and_is_overridable(monkeypatch: pytest.MonkeyPatch) -> None:
+    """One configuration source for `k`, reachable without editing anything."""
+    assert Settings().retrieval_k == 10
+
+    monkeypatch.setenv("WARRANT_RETRIEVAL_K", "3")
+
+    assert Settings().retrieval_k == 3
+
+
+def test_a_k_below_one_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Retrieving nothing is not a configuration, and should not read as one."""
+    monkeypatch.setenv("WARRANT_RETRIEVAL_K", "0")
+
+    with pytest.raises(ValidationError):
+        Settings()

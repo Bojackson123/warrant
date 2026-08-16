@@ -65,8 +65,10 @@ def test_a_pool_opened_before_the_migrations_still_sends_vectors_after_them(
 
     with pool.connection() as pooled_conn, pooled_conn.cursor() as cursor:
         cursor.execute("SELECT %s::vector", (np.array([1.0, 2.0, 3.0], dtype=np.float32),))
+        row = cursor.fetchone()
 
-        assert cursor.fetchone()[0].to_list() == [1.0, 2.0, 3.0]
+        assert row is not None
+        assert row[0].to_list() == [1.0, 2.0, 3.0]
 
 
 def test_a_pool_that_could_not_open_is_not_cached(monkeypatch: pytest.MonkeyPatch) -> None:

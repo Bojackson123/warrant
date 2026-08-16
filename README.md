@@ -22,13 +22,17 @@ make db-down    # stop it and delete the volume
 make model      # fetch the pinned embedding weights — the only step that needs a network
 make ingest     # embed the catalog and build the corpus; migrates first, so an empty
                 # database is fine. Runs offline, on CPU, and takes minutes.
+make ask Q="how are inactive accounts disabled?"
+                # ask the corpus a question and print the chunks it retrieves
 ```
 
 `make model` runs once per machine. Everything after it — including embedding a question typed
 into the console — runs from the local cache with no network and no API key, which is the
-property the whole thing is arranged around. Re-running `make ingest` rebuilds the same corpus
-rather than a second copy of it, and prints a fingerprint you can compare across runs to see that
-it did.
+property the whole thing is arranged around. `make ask` is where that is easiest to check: unplug
+the machine, ask it something, and watch real retrieval answer.
+
+Re-running `make ingest` rebuilds the same corpus rather than a second copy of it, and prints a
+fingerprint you can compare across runs to see that it did.
 
 ## Licence
 

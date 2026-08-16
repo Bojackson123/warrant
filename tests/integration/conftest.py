@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Iterator
+from contextlib import contextmanager
 
 import psycopg
 import pytest
@@ -27,16 +28,14 @@ def postgres() -> Iterator[PostgresContainer]:
         yield container
 
 
-@pytest.fixture
-def dsn(postgres: PostgresContainer, request: pytest.FixtureRequest) -> Iterator[str]:
-    """A connection string to a database created fresh for this test and dropped after it.
+@contextmanager
+def _database(postgres: PostgresContainer, node_id: str) -> Iterator[str]:
+    """A database named for one test node, dropped when the block ends.
 
-    A per-test database rather than a per-test container: starting Postgres costs seconds and
-    CREATE DATABASE costs milliseconds, and the isolation is the same. It has to be genuine
-    isolation rather than a truncate, because most of these tests are about what happens to an
-    unmigrated database.
+    Named from a digest of the node id rather than from the id itself, which carries path
+    separators, brackets and parametrisation that an identifier cannot hold.
     """
-    digest = hashlib.sha256(request.node.nodeid.encode("utf-8")).hexdigest()[:16]
+    digest = hashlib.sha256(node_id.encode("utf-8")).hexdigest()[:16]
     name = f"test_{digest}"
     admin = postgres.get_connection_url(driver=None)
 
@@ -53,6 +52,32 @@ def dsn(postgres: PostgresContainer, request: pytest.FixtureRequest) -> Iterator
             conn.execute(
                 sql.SQL("DROP DATABASE IF EXISTS {} WITH (FORCE)").format(sql.Identifier(name))
             )
+
+
+@pytest.fixture
+def dsn(postgres: PostgresContainer, request: pytest.FixtureRequest) -> Iterator[str]:
+    """A connection string to a database created fresh for this test and dropped after it.
+
+    A per-test database rather than a per-test container: starting Postgres costs seconds and
+    CREATE DATABASE costs milliseconds, and the isolation is the same. It has to be genuine
+    isolation rather than a truncate, because most of these tests are about what happens to an
+    unmigrated database.
+    """
+    with _database(postgres, request.node.nodeid) as url:
+        yield url
+
+
+@pytest.fixture(scope="module")
+def module_dsn(postgres: PostgresContainer, request: pytest.FixtureRequest) -> Iterator[str]:
+    """One database shared by every test in a module, for a corpus too expensive to rebuild.
+
+    The exception to the per-test rule above, and it costs the isolation that rule buys — so it
+    is only for tests that read a corpus without changing it. What makes it worth the exception
+    is embedding: filling a database with the real pinned model is a minute of CPU, and paying
+    that per test is how a suite stops being run.
+    """
+    with _database(postgres, request.node.nodeid) as url:
+        yield url
 
 
 @pytest.fixture

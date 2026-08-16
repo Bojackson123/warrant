@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate catalog chunks model ingest up
+.PHONY: sync lint format typecheck test db-up db-down migrate catalog chunks model ingest ask up
 
 sync:
 	uv sync
@@ -51,6 +51,13 @@ model:
 # database in one command. Needs `make model` to have run once, and no network of its own.
 ingest:
 	uv run python -m warrant.ingest
+
+# Asks the corpus a question and prints the chunks it retrieves, with the k it used:
+# `make ask Q="how are inactive accounts disabled?"`. Needs `make ingest` to have run, and needs
+# no API key and no network -- which is the property this target exists to make observable rather
+# than only asserted in a test.
+ask:
+	uv run python -m warrant.retrieval "$(Q)"
 
 # Brings up everything the compose file defines. That is the database alone today; the API and
 # the console join it once they exist.
