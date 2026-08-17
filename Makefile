@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again up
+.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again serve up
 
 sync:
 	uv sync
@@ -102,6 +102,13 @@ record-queries:
 # difference between this and `make record` is a provider bill.
 record-again:
 	uv run python -m warrant.fixtures --force
+
+# Serves the one endpoint under uvicorn. Needs the corpus, the embedding weights, the tokenizer
+# encoding and the recorded query vectors -- and no API key: with none set it comes up in replay
+# mode, which is the path a reviewer takes. Verifies the corpus and the manifest at startup and
+# refuses to serve if either has moved.
+serve:
+	uv run python -m warrant.api
 
 # Brings up everything the compose file defines. That is the database alone today; the API and
 # the console join it once they exist.

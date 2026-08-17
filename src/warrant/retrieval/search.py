@@ -60,7 +60,22 @@ _SEARCH = """
 
 
 class RetrievalError(Exception):
-    """The corpus cannot be searched, or cannot be searched with the encoder supplied."""
+    """The corpus cannot be searched, or cannot be searched with the encoder supplied.
+
+    The base of the two directions this can fail in. Most of them are the server's own fault -- an
+    empty corpus, an encoder that disagrees with the pin, a `k` misconfigured below one -- and a
+    caller turning those into an HTTP status should read them as `500`. The one exception is
+    `EmptyQuestionError`, which is the client's to fix.
+    """
+
+
+class EmptyQuestionError(RetrievalError):
+    """The question is empty or all whitespace -- the caller's error, not the corpus's.
+
+    Separated from the rest so a boundary that maps retrieval failures to HTTP statuses can answer
+    `400` here and `500` for the operator faults, rather than blaming the client for a database
+    nobody ingested into or a pin the encoder no longer matches.
+    """
 
 
 @dataclass(frozen=True, slots=True)
@@ -155,7 +170,7 @@ def retrieve(
     # like every other ranking — so the emptiness would survive all the way to an answer that
     # cites controls nobody asked about.
     if not question.strip():
-        raise RetrievalError(
+        raise EmptyQuestionError(
             "The question is empty. Embedding it would produce a vector for the model's own "
             "instruction prefix and rank the corpus against that, which returns chunks that look "
             "like an answer to something."

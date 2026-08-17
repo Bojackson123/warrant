@@ -10,6 +10,12 @@ license-files = ["LICENSE", "NOTICE"]
 # resolving the same interpreter.
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    # The HTTP surface and the server that runs it. Floored rather than pinned: neither decides a
+    # stored artefact -- the fixture keys, the vectors and the counted sizes are all computed
+    # upstream of the request layer -- so a moved version of either changes nothing recorded, the
+    # way the psycopg and pgvector floors change nothing recorded.
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
     # Declared rather than inherited from torch. Vectors are numpy arrays across the seam between
     # the embedder, the pipeline and the query path, so this is a direct dependency of ours.
     "numpy>=2.0",
@@ -36,6 +42,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    # What Starlette's `TestClient` drives the app through. Present transitively via `openai`
+    # already; declared here because the endpoint tests depend on it directly rather than by
+    # accident of another package needing it.
+    "httpx>=0.27",
     "pyright==1.1.407",
     "pytest==8.4.2",
     "ruff==0.14.5",

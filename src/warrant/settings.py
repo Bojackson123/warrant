@@ -45,6 +45,15 @@ class Settings(BaseSettings):
     # Matches the credentials the local Compose database is brought up with.
     database_url: str = "postgresql://warrant:warrant@localhost:5432/warrant"
 
+    # Where the HTTP server binds. `127.0.0.1`, never `0.0.0.0` by default: the endpoint has no
+    # authentication, and a default that binds every interface would put it on the network of any
+    # machine that runs `make serve` on a shared connection. A container that needs it reachable
+    # from outside sets `WARRANT_API_HOST=0.0.0.0` deliberately -- the same loopback-by-default the
+    # Compose file already takes for the database port. The port is the conventional one for a
+    # local service and moves per machine, which is why it is settings rather than a pin.
+    api_host: str = "127.0.0.1"
+    api_port: int = 8000
+
     # One process serves one console. A minimum above zero keeps the first request off the
     # connection-establishment path; the maximum is a ceiling nothing at this size approaches,
     # present so that a leak shows up as a pool timeout naming the pool rather than as Postgres

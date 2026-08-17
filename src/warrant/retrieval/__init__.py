@@ -12,11 +12,18 @@ from warrant.retrieval.corpus_check import (
     CorpusMissingError,
     verify_corpus,
 )
-from warrant.retrieval.search import Retrieval, RetrievalError, RetrievedChunk, retrieve
+from warrant.retrieval.search import (
+    EmptyQuestionError,
+    Retrieval,
+    RetrievalError,
+    RetrievedChunk,
+    retrieve,
+)
 
 __all__ = [
     "CorpusMismatchError",
     "CorpusMissingError",
+    "EmptyQuestionError",
     "Retrieval",
     "RetrievalError",
     "RetrievedChunk",

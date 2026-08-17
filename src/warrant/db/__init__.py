@@ -6,11 +6,12 @@ would be the largest dependency here and would earn nothing in return.
 
 from warrant.db.health import SchemaHealth, check_schema
 from warrant.db.migrator import MigrationStateError, SchemaDriftError, apply_migrations
-from warrant.db.pool import close_pool, connection, open_pool
+from warrant.db.pool import ConnectionSource, close_pool, connection, open_pool
 from warrant.db.schema_check import SchemaDimensionError, verify_embedding_dimensions
 from warrant.db.scripts import MigrationSetError, target_version
 
 __all__ = [
+    "ConnectionSource",
     "MigrationSetError",
     "MigrationStateError",
     "SchemaDimensionError",

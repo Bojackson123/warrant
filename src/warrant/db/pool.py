@@ -9,14 +9,20 @@ open a second pool of its own. One pool, one kind of connection, both callers.
 from __future__ import annotations
 
 import weakref
-from collections.abc import Iterator
-from contextlib import contextmanager
+from collections.abc import Callable, Iterator
+from contextlib import AbstractContextManager, contextmanager
 
 import psycopg
 from pgvector.psycopg import register_vector
 from psycopg_pool import ConnectionPool
 
 from warrant.settings import get_settings
+
+# A borrow-and-return of one pooled connection: call it, and the `with` block it yields owns the
+# connection for its length and no longer. Passed in place of a live connection wherever a caller
+# should decide how briefly to hold one -- the request path borrows for the retrieval alone and
+# returns the connection before it generates, so a slow provider call does not pin an idle one.
+ConnectionSource = Callable[[], AbstractContextManager[psycopg.Connection]]
 
 _pool: ConnectionPool | None = None
 
