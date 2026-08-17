@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again serve up
+.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again serve up console-install console console-test
 
 sync:
 	uv sync
@@ -114,3 +114,18 @@ serve:
 # the console join it once they exist.
 up:
 	docker compose up --build
+
+# Installs the console's dependencies from its lockfile. Run once, like `make sync` for Python.
+console-install:
+	npm --prefix console ci
+
+# Serves the console on a Vite dev server, which proxies /answer to the API on port 8000. Needs
+# `make serve` running in another terminal; with no API key that server is in replay mode, which is
+# the path a reviewer takes -- question in, answer with citations, click a citation, read the clause.
+console:
+	npm --prefix console run dev
+
+# The console's own tests: the answer parser and the citation rendering, run under vitest with no
+# API and no network. What `make test` is for Python.
+console-test:
+	npm --prefix console test
