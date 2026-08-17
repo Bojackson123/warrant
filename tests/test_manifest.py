@@ -257,11 +257,11 @@ def test_the_corpus_expectations_do_not_move_the_embedder_digest(
 def test_the_unbuilt_slots_exist_and_are_declared_absent(manifest: Manifest) -> None:
     """Named before they are built, so that building one is a regeneration rather than a surprise.
 
-    A mutation test for the prompt template arrives with the prompt template; there is nothing to
-    edit yet. What can be asserted now is that the slot is present, says what it will cover, and
-    already declares what changing it will cost.
+    A mutation test for the judge prompt arrives with the judge prompt; there is nothing to edit
+    yet. What can be asserted now is that the slot is present, says what it will cover, and already
+    declares what changing it will cost.
     """
-    for name in ("prompt_template", "tokenizer", "judge_prompt"):
+    for name in ("judge_prompt",):
         entry = manifest.entries[name]
 
         assert not entry.built, f"{name} is recorded as built"
@@ -273,13 +273,13 @@ def test_an_input_that_starts_existing_is_a_mismatch(
     manifest: Manifest, observed: dict[str, Observation]
 ) -> None:
     """Filling a slot without re-recording fails, which is how a new input announces itself."""
-    observed["prompt_template"] = Observation("prompt template 1", "0" * 64)
+    observed["judge_prompt"] = Observation("judge prompt 1", "0" * 64)
 
     with pytest.raises(ManifestMismatchError) as raised:
         check(manifest, observed)
 
     message = str(raised.value)
-    assert "`prompt_template` entry" in message
+    assert "`judge_prompt` entry" in message
     assert "It exists now, so its cost applies now" in message
 
 

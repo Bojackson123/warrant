@@ -26,6 +26,11 @@ dependencies = [
     # embedding, and every recorded model call downstream is keyed on text retrieved by those
     # vectors. These are the versions the embedding comparison was measured under.
     "sentence-transformers==5.7.0",
+    # Pinned exactly for a related but distinct reason: it decides no stored artefact, and it
+    # decides every number this project reports about the size of a prompt. A floated version that
+    # counted differently would leave nothing to re-record and every previously reported count
+    # wrong, which is a failure with no artefact to notice it.
+    "tiktoken==0.12.0",
     "torch==2.9.1",
 ]
 
@@ -78,4 +83,5 @@ testpaths = ["tests"]
 markers = [
     "integration: needs a real Postgres, started as a container. Requires a running Docker.",
     "model: needs the pinned embedding weights in the local cache. `make model` fetches them.",
+    "tokenizer: needs the pinned tokenizer encoding cached. `make tokenizer` fetches it.",
 ]

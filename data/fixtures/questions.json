@@ -1,0 +1,133 @@
+{
+  "_comment": [
+    "PROVISIONAL. This is not a measured question set and nothing here should be quoted as one.",
+    "It exists so the recording path runs end to end and so a reviewer has something to click,",
+    "and it will be replaced by a set that is sized per class, drafted with stated provenance,",
+    "and admitted against a criterion rather than by judgement.",
+    "",
+    "The three classes are the ones that set will use, so growing into it is a longer file rather",
+    "than a different shape.",
+    "",
+    "  answerable          -- the catalog states an answer, and a correct one cites the control",
+    "                         that warrants it.",
+    "  out_of_corpus       -- the catalog does not address this. The right behaviour is to say so,",
+    "                         not to produce the nearest-looking control.",
+    "  prior_conflict_trap -- most readers, and most models, already believe they know the answer,",
+    "                         and the catalog says something else. These are the interesting ones:",
+    "                         Revision 5 moved a great deal of what people remember as fixed",
+    "                         requirements into organization-defined parameters, so the honest",
+    "                         answer is that the catalog leaves it to the organization -- which is",
+    "                         precisely the answer an ungrounded model does not give.",
+    "",
+    "The traps here are reasoned guesses about what a model will get wrong, and the later set",
+    "admits a trap only with a committed transcript of the ungrounded model actually getting it",
+    "wrong, dated and model-versioned. `because` on each one records the reasoning in the",
+    "meantime, so a trap that turns out not to trap anything is a claim somebody can check rather",
+    "than a line nobody can argue with.",
+    "",
+    "This file has no manifest entry, on purpose. Adding a question invalidates nothing -- it",
+    "simply has no recording yet, which the recorder closes and which replay reports plainly.",
+    "",
+    "`make record` records an answer for every question below. Questions are matched exactly, so",
+    "editing the text of one is a new question and a new recording, not an edit to an old one."
+  ],
+  "version": "provisional-1",
+  "questions": [
+    {
+      "id": "inactive-accounts",
+      "class": "answerable",
+      "text": "What does the catalog require an organization to do with accounts that are no longer being used?",
+      "because": "Account management is stated directly and is the shortest path from a question to a citable control."
+    },
+    {
+      "id": "account-creation-approval",
+      "class": "answerable",
+      "text": "Who has to approve a request to create a new system account?",
+      "because": "Asks for a role rather than a period, so a correct answer has to come from the control text rather than from a remembered number."
+    },
+    {
+      "id": "audit-record-protection",
+      "class": "answerable",
+      "text": "How does the catalog say audit records should be protected from unauthorized modification or deletion?",
+      "because": "The answer spans a control and its enhancements, which is where chunking on the catalog's own boundaries has to hold up."
+    },
+    {
+      "id": "privileged-authentication",
+      "class": "answerable",
+      "text": "Does the catalog require more than a password to authenticate a privileged account?",
+      "because": "A yes-or-no question with a control behind it; an answer without a citation is visibly incomplete."
+    },
+    {
+      "id": "termination-access",
+      "class": "answerable",
+      "text": "What has to happen to someone's access when they leave the organization?",
+      "because": "Sits in personnel security rather than access control, so retrieving it means the corpus is not just answering from one family."
+    },
+    {
+      "id": "incident-reporting",
+      "class": "answerable",
+      "text": "Who must an organization report a security incident to, and how quickly?",
+      "because": "Half the answer is stated and half is an organization-defined parameter, so a good answer separates the two."
+    },
+    {
+      "id": "data-at-rest",
+      "class": "answerable",
+      "text": "What does the catalog say about protecting information while it is stored rather than in transit?",
+      "because": "Phrased without the word encryption, so retrieval has to work from intent rather than from lexical overlap."
+    },
+    {
+      "id": "contingency-plan-review",
+      "class": "answerable",
+      "text": "How does the catalog say a contingency plan should be kept current?",
+      "because": "A process question rather than a control-name question, which is the shape most real questions take."
+    },
+    {
+      "id": "fedramp-provider-choice",
+      "class": "out_of_corpus",
+      "text": "Which cloud provider should we use to get a FedRAMP authorization fastest?",
+      "because": "Adjacent vocabulary, no answer in the catalog. Retrieval will return plausible-looking controls, so this tests declining in the presence of confident-looking evidence."
+    },
+    {
+      "id": "gdpr-subject-access",
+      "class": "out_of_corpus",
+      "text": "How long do we have to respond to a data subject access request?",
+      "because": "A different regulation entirely. The catalog says nothing, and the failure mode is answering from general knowledge under a citation that does not support it."
+    },
+    {
+      "id": "group-policy-lockout",
+      "class": "out_of_corpus",
+      "text": "What Active Directory group policy setting locks the screen after inactivity?",
+      "because": "The catalog states the requirement and never the product configuration, so the honest answer names the boundary rather than guessing a setting."
+    },
+    {
+      "id": "siem-cost",
+      "class": "out_of_corpus",
+      "text": "What should we budget annually for a SIEM to satisfy these controls?",
+      "because": "Nothing in a control catalog is about cost. A number here would be invented outright."
+    },
+    {
+      "id": "password-rotation-period",
+      "class": "prior_conflict_trap",
+      "text": "How often does the catalog require passwords to be changed?",
+      "because": "Ninety days is the answer almost everyone gives and it is not in Revision 5, which leaves any such period to the organization. This is the trap the whole class is modelled on."
+    },
+    {
+      "id": "failed-login-threshold",
+      "class": "prior_conflict_trap",
+      "text": "How many consecutive failed login attempts does the catalog allow before an account is locked?",
+      "because": "Three and five are both widely remembered as fixed requirements; the catalog states an organization-defined number, so any specific figure is invented."
+    },
+    {
+      "id": "audit-retention-period",
+      "class": "prior_conflict_trap",
+      "text": "How long does the catalog require audit records to be retained?",
+      "because": "One year is the common answer and the catalog defers the period to the organization, consistent with its records retention requirements."
+    },
+    {
+      "id": "minimum-password-length",
+      "class": "prior_conflict_trap",
+      "text": "What minimum password length and complexity does the catalog require?",
+      "because": "Revision 5 removed the composition and length rules people remember from earlier guidance. A model answering from prior knowledge produces requirements the text does not contain."
+    }
+  ]
+}

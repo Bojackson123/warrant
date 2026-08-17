@@ -1,0 +1,26 @@
+{
+  "key": "ef4f084b7aa373ef021c2deadd716b2ffe1bb76cb0d06244f5c100427ba16b06",
+  "purpose": "generation",
+  "question": "What does the catalog require an organization to do with accounts that are no longer being used?",
+  "control_ids": [
+    "ac-2.3",
+    "au-11",
+    "cm-8.2",
+    "ma-3.3",
+    "ia-11",
+    "ia-5.13",
+    "ac-2.2",
+    "ac-20.3",
+    "ac-2",
+    "ac-2.11"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2255,
+  "usage_completion_tokens": 94,
+  "counted_prompt_tokens": 2248,
+  "answer_lines": [
+    "The catalog requires an organization to disable accounts within an organization-defined time period when the accounts are no longer associated with a user or individual [AC-2(3)]. Additionally, accounts that are no longer required must be notified to account managers and other defined personnel within an organization-defined time period [AC-2]. Accounts are to be created, enabled, modified, disabled, and removed in accordance with organization-defined policy, procedures, prerequisites, and criteria [AC-2]."
+  ]
+}

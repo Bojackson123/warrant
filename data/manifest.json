@@ -92,15 +92,19 @@
     },
     "prompt_template": {
       "_comment": [
-        "Not built. The template that turns retrieved chunks and a question into a request:",
-        "its instructions, its layout, and the order the retrieved text appears in. Recorded",
-        "answers are keyed on the whole rendered request, so one changed character is a miss",
-        "rather than a stale hit -- which is the point, and which is why the cost below is",
-        "already written down."
+        "The template that turns retrieved chunks and a question into a request: its",
+        "instructions, its layout, and the order the retrieved text appears in. Recorded answers",
+        "are keyed on the whole rendered request, so one changed character is a miss rather than",
+        "a stale hit -- which is the point.",
+        "",
+        "The digest is over what the template makes of a fixed retrieval, not over the version",
+        "string beside it, because the version is a claim somebody maintains and this is what",
+        "catches the claim going stale: a reordered section or a dropped field moves every key",
+        "downstream while the version sits still."
       ],
       "covers": "The template that renders retrieved chunks and a question into the request a model is sent.",
-      "identity": null,
-      "digest": null,
+      "identity": "template 1",
+      "digest": "94c3d96d42ab545c6013dfb8e4fb58d9d686b072ca4af45f3bd402cb9d01e19f",
       "invalidates": [
         "generation",
         "judge"
@@ -108,14 +112,19 @@
     },
     "tokenizer": {
       "_comment": [
-        "Not built. The generation model's own tokenizer, pinned beside the model version.",
-        "A generic or approximate one means counting a number the provider does not bill",
-        "against, so swapping it changes every counted size without changing a stored artefact:",
-        "nothing has to be re-recorded, and every number previously reported is wrong."
+        "The generation model's own encoding, pinned beside the model version in model.json. A",
+        "generic or approximate one means counting a number the provider does not bill against.",
+        "",
+        "This is the entry whose change costs the least to repair and is the hardest to notice.",
+        "Swapping it invalidates no stored artefact at all -- nothing has to be re-recorded --",
+        "and every prompt size this project has ever reported becomes wrong, with nothing left",
+        "behind that looks wrong. The identity is the encoding alone: the model it belongs to is",
+        "hashed into every recorded call's key already, and naming it twice would fire this entry",
+        "on a model swap that left the counting untouched."
       ],
       "covers": "The tokenizer prompt sizes are counted with, pinned beside the generation model it belongs to.",
-      "identity": null,
-      "digest": null,
+      "identity": "o200k_base",
+      "digest": "be786c593518baf23fb37eed800bdf80953be2ff6b501f1fcb33be2f4655d1ee",
       "invalidates": [
         "counts"
       ]

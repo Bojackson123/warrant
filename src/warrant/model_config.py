@@ -57,6 +57,24 @@ class Sampling(BaseModel):
     max_output_tokens: int = Field(gt=0)
 
 
+class TokenizerPin(BaseModel):
+    """Which encoding a prompt's size is counted with.
+
+    Pinned beside the model rather than derived from its name. `tiktoken` carries its own mapping
+    from model to encoding, and that mapping lives in the library and moves with its version -- so
+    deriving it would let a library upgrade silently change every number this project reports about
+    the cost of a prompt, with no stored artefact left wrong to reveal it.
+
+    Its own model rather than a bare string, so that adding what a second tokenizer would need is
+    an addition here rather than a second shape.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    # The encoding's own name, as `tiktoken` knows it.
+    encoding: str
+
+
 class ModelConfig(BaseModel):
     """Which generation model this build talks to, and how."""
 
@@ -76,6 +94,12 @@ class ModelConfig(BaseModel):
 
     sampling: Sampling
 
+    # Not hashed into a request key, unlike everything above it. Counting a prompt does not change
+    # what is sent, so a moved encoding invalidates nothing stored -- which is exactly why it needs
+    # the manifest, where a change that leaves no wrong artefact behind still has to announce
+    # itself.
+    tokenizer: TokenizerPin
+
 
 @lru_cache(maxsize=1)
 def get_model_config() -> ModelConfig:
@@ -93,14 +117,18 @@ def load_model_config(path: Path) -> ModelConfig:
     document = json.loads(path.read_text(encoding="utf-8"))
 
     # The file carries `_comment` keys explaining what a change to it costs, at the top level and
-    # inside `sampling`. They are for the reader and are removed by name here, rather than by
-    # letting the models ignore everything they do not recognise -- because a sampling parameter
+    # inside each nested block. They are for the reader and are removed by name here, rather than
+    # by letting the models ignore everything they do not recognise -- because a sampling parameter
     # the models ignored would be dropped just as quietly, and that one decides the answer.
+    #
+    # The blocks are named rather than walked for, so that a nested block added later is uncommented
+    # or added here deliberately, instead of inheriting a leniency nothing decided to give it.
     document.pop("_comment", None)
 
-    sampling = document.get("sampling")
+    for block in ("sampling", "tokenizer"):
+        nested = document.get(block)
 
-    if isinstance(sampling, dict):
-        sampling.pop("_comment", None)
+        if isinstance(nested, dict):
+            nested.pop("_comment", None)
 
     return ModelConfig.model_validate(document)

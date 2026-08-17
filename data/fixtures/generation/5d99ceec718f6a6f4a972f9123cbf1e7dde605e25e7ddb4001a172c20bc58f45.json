@@ -1,0 +1,38 @@
+{
+  "key": "5d99ceec718f6a6f4a972f9123cbf1e7dde605e25e7ddb4001a172c20bc58f45",
+  "purpose": "generation",
+  "question": "What should we budget annually for a SIEM to satisfy these controls?",
+  "control_ids": [
+    "si-12",
+    "pm-1",
+    "si-1",
+    "sa-2",
+    "pm-3",
+    "au-1",
+    "pm-18",
+    "cm-1",
+    "mp-1",
+    "pe-19.1"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 4373,
+  "usage_completion_tokens": 241,
+  "counted_prompt_tokens": 4366,
+  "answer_lines": [
+    "The retrieved control texts do not specify any exact budget amounts or annual budgeting requirements for a Security Information and Event Management (SIEM) system.",
+    "",
+    "However, the controls do address resource allocation and planning for information security and privacy programs, which would include systems like a SIEM:",
+    "",
+    "- SA-2 requires determining, documenting, and allocating resources required to protect the system or system service as part of organizational capital planning and investment control processes, including establishing a discrete line item for information security and privacy in programming and budgeting documentation.",
+    "",
+    "- PM-3 requires including the resources needed to implement information security and privacy programs in capital planning and investment requests, documenting exceptions, and making available the planned resources.",
+    "",
+    "These controls imply that budgeting for a SIEM should be part of the organization's capital planning and investment control process, with resources allocated and documented accordingly, but they do not specify an annual budget amount or frequency.",
+    "",
+    "Therefore, the controls require budgeting and resource allocation for information security and privacy programs, including systems like a SIEM, as part of organizational planning and investment processes, but do not prescribe a specific annual budget amount [SA-2][PM-3].",
+    "",
+    "No other retrieved controls provide specific budgeting or financial guidance for SIEM systems."
+  ]
+}

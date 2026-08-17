@@ -1,0 +1,72 @@
+{
+  "embedder_name": "BAAI/bge-base-en-v1.5",
+  "embedder_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "dimensions": 768,
+  "recorded_on": "2026-08-17",
+  "queries": [
+    {
+      "question": "Does the catalog require more than a password to authenticate a privileged account?",
+      "row": 0
+    },
+    {
+      "question": "How does the catalog say a contingency plan should be kept current?",
+      "row": 1
+    },
+    {
+      "question": "How does the catalog say audit records should be protected from unauthorized modification or deletion?",
+      "row": 2
+    },
+    {
+      "question": "How long do we have to respond to a data subject access request?",
+      "row": 3
+    },
+    {
+      "question": "How long does the catalog require audit records to be retained?",
+      "row": 4
+    },
+    {
+      "question": "How many consecutive failed login attempts does the catalog allow before an account is locked?",
+      "row": 5
+    },
+    {
+      "question": "How often does the catalog require passwords to be changed?",
+      "row": 6
+    },
+    {
+      "question": "What Active Directory group policy setting locks the screen after inactivity?",
+      "row": 7
+    },
+    {
+      "question": "What does the catalog require an organization to do with accounts that are no longer being used?",
+      "row": 8
+    },
+    {
+      "question": "What does the catalog say about protecting information while it is stored rather than in transit?",
+      "row": 9
+    },
+    {
+      "question": "What has to happen to someone's access when they leave the organization?",
+      "row": 10
+    },
+    {
+      "question": "What minimum password length and complexity does the catalog require?",
+      "row": 11
+    },
+    {
+      "question": "What should we budget annually for a SIEM to satisfy these controls?",
+      "row": 12
+    },
+    {
+      "question": "Which cloud provider should we use to get a FedRAMP authorization fastest?",
+      "row": 13
+    },
+    {
+      "question": "Who has to approve a request to create a new system account?",
+      "row": 14
+    },
+    {
+      "question": "Who must an organization report a security incident to, and how quickly?",
+      "row": 15
+    }
+  ]
+}

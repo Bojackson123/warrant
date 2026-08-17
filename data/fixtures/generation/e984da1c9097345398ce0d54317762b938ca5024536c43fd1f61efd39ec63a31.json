@@ -1,0 +1,26 @@
+{
+  "key": "e984da1c9097345398ce0d54317762b938ca5024536c43fd1f61efd39ec63a31",
+  "purpose": "generation",
+  "question": "Who has to approve a request to create a new system account?",
+  "control_ids": [
+    "ac-2.8",
+    "ac-2",
+    "sa-21",
+    "ac-2.1",
+    "ia-12.1",
+    "ac-20.1",
+    "ia-4",
+    "pt-8",
+    "ca-3.6",
+    "cm-7.5"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2819,
+  "usage_completion_tokens": 20,
+  "counted_prompt_tokens": 2812,
+  "answer_lines": [
+    "Requests to create accounts must be approved by [organization-defined personnel or roles] [AC-2]."
+  ]
+}

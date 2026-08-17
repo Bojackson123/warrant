@@ -1,0 +1,30 @@
+{
+  "key": "2d6e28376fd043a26561f27b56f4dd3b4644af1b4fdaaee66727f472b8a8638c",
+  "purpose": "generation",
+  "question": "Who must an organization report a security incident to, and how quickly?",
+  "control_ids": [
+    "ir-6",
+    "ir-8.1",
+    "ir-4.7",
+    "ir-4.11",
+    "ir-6.1",
+    "ir-4",
+    "ir-2.3",
+    "ir-6.2",
+    "ir-8",
+    "ir-1"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2562,
+  "usage_completion_tokens": 105,
+  "counted_prompt_tokens": 2555,
+  "answer_lines": [
+    "An organization must require personnel to report suspected incidents to the organizational incident response capability within an organization-defined time period. Additionally, incident information must be reported to organization-defined authorities [IR-6].",
+    "",
+    "The specific types of incidents reported, the content and timeliness of the reports, and the designated reporting authorities reflect applicable laws, executive orders, directives, regulations, policies, standards, and guidelines [IR-6].",
+    "",
+    "The time period for reporting is organization-defined, meaning the organization determines how quickly incidents must be reported [IR-6]."
+  ]
+}

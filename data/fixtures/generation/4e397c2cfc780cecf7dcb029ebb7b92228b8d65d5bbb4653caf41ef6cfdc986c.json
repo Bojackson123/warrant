@@ -1,0 +1,26 @@
+{
+  "key": "4e397c2cfc780cecf7dcb029ebb7b92228b8d65d5bbb4653caf41ef6cfdc986c",
+  "purpose": "generation",
+  "question": "How often does the catalog require passwords to be changed?",
+  "control_ids": [
+    "ia-11",
+    "ia-5.18",
+    "ia-5.1",
+    "ia-5.5",
+    "sa-10.4",
+    "ia-5",
+    "cm-5",
+    "ac-6.7",
+    "ac-7",
+    "ac-9.3"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2610,
+  "usage_completion_tokens": 71,
+  "counted_prompt_tokens": 2603,
+  "answer_lines": [
+    "The retrieved text does not specify how often passwords are required to be changed. It covers password management, including verifying passwords against lists of commonly used or compromised passwords, protecting passwords, and requiring new passwords upon account recovery, but it does not state a required frequency for password changes [IA-5(1), IA-5(18), IA-5]."
+  ]
+}

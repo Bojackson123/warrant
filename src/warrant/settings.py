@@ -67,6 +67,11 @@ class Settings(BaseSettings):
     # notice locally. What lives in `Settings` is what may legitimately differ between machines.
     model_config_path: Path = REPO_ROOT / "data" / "model.json"
 
+    # Where recorded model calls and recorded query vectors live. One directory rather than two
+    # settings: the text fixtures and the binary vectors are kept in separate subdirectories of it,
+    # and that separation is a property of the layout rather than something a machine reconfigures.
+    fixtures_path: Path = REPO_ROOT / "data" / "fixtures"
+
     # The record of the two above and of the code that reads them, checked as a set. Beside the
     # pins it covers rather than beside the recorded model calls it governs, because the things
     # that read it -- ingest, and anything validating before it serves or measures -- do not read a
@@ -79,6 +84,13 @@ class Settings(BaseSettings):
     # weights are present before anything runs, because a first-run download is exactly what
     # breaks the promise that this works with no network.
     model_cache_dir: Path | None = None
+
+    # Where the generation model's tokenizer encoding is cached. Defaulted to a real path rather
+    # than left to `tiktoken`, whose own default is a directory under the system temporary path --
+    # swept on a schedule nobody here controls, so "fetch it once per machine" would be true right
+    # up until it silently was not. A container sets this to a path inside the image, populated at
+    # build time, for the same reason the model cache is.
+    tokenizer_cache_dir: Path = REPO_ROOT / ".tokenizer-cache"
 
     # Chunks embedded per forward pass. Trades peak memory against throughput and nothing else:
     # the model is deterministic per input, so this does not change a stored vector. Bounded

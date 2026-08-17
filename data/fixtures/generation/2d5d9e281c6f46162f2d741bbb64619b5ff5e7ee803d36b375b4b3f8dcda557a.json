@@ -1,0 +1,28 @@
+{
+  "key": "2d5d9e281c6f46162f2d741bbb64619b5ff5e7ee803d36b375b4b3f8dcda557a",
+  "purpose": "generation",
+  "question": "What Active Directory group policy setting locks the screen after inactivity?",
+  "control_ids": [
+    "ac-11",
+    "ac-2.5",
+    "ac-7",
+    "ac-17.9",
+    "sc-2.1",
+    "ac-11.1",
+    "sa-8.24",
+    "ac-2.3",
+    "ac-9",
+    "si-14"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2600,
+  "usage_completion_tokens": 130,
+  "counted_prompt_tokens": 2593,
+  "answer_lines": [
+    "The retrieved NIST SP 800-53 Revision 5 control text does not specify or mention any Active Directory group policy setting that locks the screen after inactivity. It covers the concept of device lock after inactivity under control AC-11, which states that a device lock can be initiated after an organization-defined time period of inactivity to prevent further access to the system, but it does not specify any particular Active Directory group policy setting by name.",
+    "",
+    "Therefore, the retrieved text does not answer the question about the specific Active Directory group policy setting that locks the screen after inactivity. It only addresses the general requirement and concept of device lock after inactivity [AC-11]."
+  ]
+}

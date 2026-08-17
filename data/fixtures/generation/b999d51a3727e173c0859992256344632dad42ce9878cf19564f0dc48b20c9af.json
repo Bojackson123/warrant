@@ -1,0 +1,36 @@
+{
+  "key": "b999d51a3727e173c0859992256344632dad42ce9878cf19564f0dc48b20c9af",
+  "purpose": "generation",
+  "question": "What does the catalog say about protecting information while it is stored rather than in transit?",
+  "control_ids": [
+    "sc-28",
+    "cp-9.3",
+    "cp-9",
+    "sc-8.5",
+    "sc-4",
+    "sc-42.5",
+    "mp-5",
+    "si-14.2",
+    "sc-28.2",
+    "au-9.7"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 1988,
+  "usage_completion_tokens": 291,
+  "counted_prompt_tokens": 1981,
+  "answer_lines": [
+    "The catalog states that organizations must protect the confidentiality and/or integrity of information at rest, which refers to information not in process or in transit and located on system components such as hard drives, storage area network devices, or databases. Protection mechanisms may include cryptographic methods, file share scanning, and write-once-read-many (WORM) technologies. When adequate protection cannot be achieved, other controls such as frequent scanning for malicious code and secure offline storage may be employed [SC-28].",
+    "",
+    "Additionally, organizations may remove information from online storage and store it offline in a secure location to eliminate the possibility of unauthorized network access [SC-28(2)].",
+    "",
+    "For backup information, organizations must protect the confidentiality, integrity, and availability of backup data [CP-9].",
+    "",
+    "If backup copies of critical system software and security-related information are stored, they must be kept in a separate facility or fire-rated container not collocated with the operational system [CP-9(3)].",
+    "",
+    "Finally, audit information should be stored on a component running a different operating system than the system being audited to reduce the risk of compromise of audit records [AU-9(7)].",
+    "",
+    "Thus, protection of information while stored involves ensuring confidentiality and integrity through cryptographic and other mechanisms, using offline storage when appropriate, protecting backups, and segregating audit data storage [SC-28][SC-28(2)][CP-9][CP-9(3)][AU-9(7)]."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "key": "6d70e2df9297c51b935db9ba3ac4b7c1da1ecd2624abc89177e416b7f63fbed6",
+  "purpose": "generation",
+  "question": "How long do we have to respond to a data subject access request?",
+  "control_ids": [
+    "ir-9",
+    "ac-3.3",
+    "ac-7",
+    "ra-8",
+    "ia-13.3",
+    "ac-3.4",
+    "ac-20.1",
+    "pm-20",
+    "ac-3.8",
+    "ir-8.1"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 3498,
+  "usage_completion_tokens": 84,
+  "counted_prompt_tokens": 3491,
+  "answer_lines": [
+    "The retrieved control text does not provide information on how long an organization has to respond to a data subject access request. The controls cover topics such as information spillage response, access control, logon attempts, privacy impact assessments, token management, limits on authorized use, dissemination of privacy program information, revocation of access authorizations, and breach incident response, but none specify timeframes for responding to data subject access requests."
+  ]
+}

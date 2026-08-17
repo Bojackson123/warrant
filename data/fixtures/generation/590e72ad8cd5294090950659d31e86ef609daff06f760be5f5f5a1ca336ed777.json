@@ -1,0 +1,26 @@
+{
+  "key": "590e72ad8cd5294090950659d31e86ef609daff06f760be5f5f5a1ca336ed777",
+  "purpose": "generation",
+  "question": "How long does the catalog require audit records to be retained?",
+  "control_ids": [
+    "au-11",
+    "au-9.2",
+    "au-11.1",
+    "au-4",
+    "si-12",
+    "au-9.7",
+    "au-4.1",
+    "au-7",
+    "au-3",
+    "pt-6.1"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2574,
+  "usage_completion_tokens": 66,
+  "counted_prompt_tokens": 2567,
+  "answer_lines": [
+    "The catalog requires audit records to be retained for an organization-defined time period to provide support for after-the-fact investigations of incidents and to meet regulatory and organizational information retention requirements. Organizations retain audit records until it is determined that the records are no longer needed for administrative, legal, audit, or other operational purposes [AU-11]."
+  ]
+}

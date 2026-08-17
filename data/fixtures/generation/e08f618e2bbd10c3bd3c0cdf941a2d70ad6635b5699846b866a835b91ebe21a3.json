@@ -1,0 +1,26 @@
+{
+  "key": "e08f618e2bbd10c3bd3c0cdf941a2d70ad6635b5699846b866a835b91ebe21a3",
+  "purpose": "generation",
+  "question": "How does the catalog say a contingency plan should be kept current?",
+  "control_ids": [
+    "cp-2.7",
+    "cp-8.4",
+    "cp-2.1",
+    "cp-2.5",
+    "cp-2",
+    "cp-4.1",
+    "cp-1",
+    "cp-4.3",
+    "cp-2.2",
+    "pe-12"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2271,
+  "usage_completion_tokens": 68,
+  "counted_prompt_tokens": 2264,
+  "answer_lines": [
+    "The catalog states that the contingency plan should be reviewed for the system at an organization-defined frequency and updated to address changes to the organization, system, or environment of operation and problems encountered during contingency plan implementation, execution, or testing. Additionally, contingency plan changes should be communicated to organization-defined key contingency personnel and organizational elements [CP-2]."
+  ]
+}

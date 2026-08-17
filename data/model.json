@@ -33,5 +33,20 @@
     "top_p": 1.0,
     "seed": 0,
     "max_output_tokens": 1024
+  },
+  "tokenizer": {
+    "_comment": [
+      "The encoding prompt sizes are counted with, named outright rather than derived from the",
+      "model above. tiktoken carries its own model-to-encoding mapping, and that mapping lives in",
+      "the library and moves with its version -- so deriving it would let a library upgrade change",
+      "every size this project reports without changing anything it stores.",
+      "",
+      "This is the one pin in this file with a manifest entry, and the asymmetry is the point.",
+      "Everything above is hashed into the key a recorded call is filed under, so it cannot move",
+      "unnoticed. Counting does not change what is sent, so a moved encoding leaves every stored",
+      "artefact valid and every number previously reported wrong -- a failure with nothing left",
+      "behind to reveal it, which is what the manifest is for."
+    ],
+    "encoding": "o200k_base"
   }
 }

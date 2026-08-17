@@ -1,0 +1,26 @@
+{
+  "key": "428701f7a1efa28ec5fb91f6bd88f510e748dfea41f7be75ce73877bdf08b0c2",
+  "purpose": "generation",
+  "question": "Does the catalog require more than a password to authenticate a privileged account?",
+  "control_ids": [
+    "ia-2.1",
+    "ia-2.2",
+    "ac-6.2",
+    "ac-6.5",
+    "ia-2.6",
+    "ia-11",
+    "ia-2.5",
+    "ra-5.5",
+    "au-9.4",
+    "au-6.8"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 1850,
+  "usage_completion_tokens": 86,
+  "counted_prompt_tokens": 1843,
+  "answer_lines": [
+    "Yes, the catalog requires multi-factor authentication for access to privileged accounts, which means more than a password is needed. Multi-factor authentication requires the use of two or more different factors such as something you know (e.g., a PIN), something you have (e.g., a physical authenticator like a cryptographic private key), or something you are (e.g., a biometric) to achieve authentication [IA-2(1)]."
+  ]
+}

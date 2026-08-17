@@ -1,0 +1,26 @@
+{
+  "key": "a3db105e1f0d3290b60a47fd859cfa45cf8da7bfc9265afee70061f6f381755c",
+  "purpose": "generation",
+  "question": "Which cloud provider should we use to get a FedRAMP authorization fastest?",
+  "control_ids": [
+    "ia-5.9",
+    "ia-13",
+    "ia-2.2",
+    "sa-8.26",
+    "ia-2.1",
+    "cm-7.5",
+    "ia-5.16",
+    "sc-12.2",
+    "ia-5.2",
+    "ia-8.5"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2577,
+  "usage_completion_tokens": 83,
+  "counted_prompt_tokens": 2570,
+  "answer_lines": [
+    "The retrieved NIST SP 800-53 Revision 5 control excerpts do not provide information about which cloud provider should be used to get a FedRAMP authorization fastest. They cover topics such as federated credential management, identity providers, multi-factor authentication, authorized software, performance security, cryptographic key management, and acceptance of PIV-I credentials, but do not address cloud providers or FedRAMP authorization timelines."
+  ]
+}

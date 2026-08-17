@@ -7,3 +7,10 @@
 data/catalog/*.json      -text
 tools/bakeoff/corpus.jsonl   -text
 tools/bakeoff/queries.jsonl  -text
+
+# Recorded query vectors. Binary, and read back as the exact bytes that were written: a line
+# ending rewritten inside a float array is a silently different vector, which retrieves a
+# different control and misses every answer recorded against it. `-diff` because there is nothing
+# in it a person can read, and a textual diff of three thousand bytes of floats buries the
+# recordings that are meant to be reviewed.
+data/fixtures/queries/vectors.npy  -text -diff

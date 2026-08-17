@@ -1,0 +1,26 @@
+{
+  "key": "179c81045cd039e174ec636ed5105a2f94d160a2a2dcd1297a5e49dc37720250",
+  "purpose": "generation",
+  "question": "How does the catalog say audit records should be protected from unauthorized modification or deletion?",
+  "control_ids": [
+    "au-9",
+    "cm-5.1",
+    "au-9.2",
+    "au-6.7",
+    "au-7",
+    "au-11",
+    "au-6",
+    "au-9.6",
+    "au-9.4",
+    "au-3"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 1904,
+  "usage_completion_tokens": 50,
+  "counted_prompt_tokens": 1897,
+  "answer_lines": [
+    "The catalog states that audit information and audit logging tools should be protected from unauthorized access, modification, and deletion. Additionally, the organization should alert defined personnel or roles upon detection of unauthorized access, modification, or deletion of audit information [AU-9]."
+  ]
+}

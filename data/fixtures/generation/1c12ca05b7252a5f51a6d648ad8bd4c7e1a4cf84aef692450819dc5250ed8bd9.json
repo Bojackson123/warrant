@@ -1,0 +1,32 @@
+{
+  "key": "1c12ca05b7252a5f51a6d648ad8bd4c7e1a4cf84aef692450819dc5250ed8bd9",
+  "purpose": "generation",
+  "question": "What has to happen to someone's access when they leave the organization?",
+  "control_ids": [
+    "ps-4",
+    "ps-5",
+    "ac-6.6",
+    "ac-3.14",
+    "pe-8",
+    "au-16.3",
+    "ac-3.8",
+    "ma-5.1",
+    "ps-6",
+    "ac-17.6"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2107,
+  "usage_completion_tokens": 105,
+  "counted_prompt_tokens": 2100,
+  "answer_lines": [
+    "When an individual leaves the organization (i.e., upon termination of employment), the following actions must occur regarding their access:",
+    "",
+    "a. Disable system access within an organization-defined time period;  ",
+    "b. Terminate or revoke any authenticators and credentials associated with the individual;  ",
+    "c. Conduct exit interviews that include a discussion of organization-defined information security topics;  ",
+    "d. Retrieve all security-related organizational system-related property; and  ",
+    "e. Retain access to organizational information and systems formerly controlled by the terminated individual [PS-4]."
+  ]
+}

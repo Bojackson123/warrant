@@ -9,7 +9,10 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
-# Local configuration and data volumes
+# Local configuration, caches and data volumes
 .env
 *.env.local
 pgdata/
+# Fetched once by `make tokenizer`. A cache of something published elsewhere, not a pin: what is
+# pinned is the encoding's name in data/model.json and what it makes of a sample, in the manifest.
+.tokenizer-cache/

@@ -1,0 +1,26 @@
+{
+  "key": "3a75db7d32df332951a821f2f026c86b277bdc4efb3299db02583d6adea03879",
+  "purpose": "generation",
+  "question": "How many consecutive failed login attempts does the catalog allow before an account is locked?",
+  "control_ids": [
+    "ac-7",
+    "ac-7.3",
+    "ac-9.1",
+    "ac-9.2",
+    "ia-2.8",
+    "ac-7.4",
+    "ac-10",
+    "sa-8.24",
+    "au-5",
+    "ia-5.8"
+  ],
+  "model": "gpt-4.1-mini",
+  "model_version": "gpt-4.1-mini-2025-04-14",
+  "recorded_on": "2026-08-17",
+  "usage_prompt_tokens": 2438,
+  "usage_completion_tokens": 50,
+  "counted_prompt_tokens": 2431,
+  "answer_lines": [
+    "The catalog does not specify a fixed number of consecutive failed login attempts before an account is locked. Instead, it requires organizations to enforce a limit of an organization-defined number of consecutive invalid logon attempts during an organization-defined time period [AC-7]."
+  ]
+}

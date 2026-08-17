@@ -55,7 +55,10 @@ from warrant.embedder_config import EmbedderConfig, get_embedder_config
 from warrant.ingest.catalog import load_catalog
 from warrant.ingest.chunker import CHUNKER_VERSION, chunker_fingerprint
 from warrant.ingest.parameters import RESOLUTION_VERSION, resolution_fingerprint
+from warrant.model_config import ModelConfig, get_model_config
+from warrant.prompt import PROMPT_TEMPLATE_VERSION, prompt_fingerprint
 from warrant.settings import get_settings
+from warrant.tokenizer import tokenizer_fingerprint
 
 # Every input this build can account for. The file lists the same names, and the two sets are
 # checked against each other rather than assumed equal: a name in the file that no code computes
@@ -262,6 +265,7 @@ def observe(
     catalog_path: Path | None = None,
     pin: CatalogPin | None = None,
     config: EmbedderConfig | None = None,
+    model: ModelConfig | None = None,
 ) -> dict[str, Observation]:
     """Compute what every pinned input currently is.
 
@@ -277,6 +281,7 @@ def observe(
     catalog_path = catalog_path if catalog_path is not None else settings.catalog_path
     pin = pin if pin is not None else get_catalog_pin()
     config = config if config is not None else get_embedder_config()
+    model = model if model is not None else get_model_config()
 
     try:
         verify_catalog(catalog_path, pin)
@@ -302,10 +307,20 @@ def observe(
             f"{config.name} @ {config.revision[:8]}",
             _digest(_canonical(config.model_dump())),
         ),
-        # Not built. Each becomes a real computation at the point the thing it names exists, and
-        # the manifest is regenerated in the same change — which is the announcement.
-        "prompt_template": Observation(None, None),
-        "tokenizer": Observation(None, None),
+        "prompt_template": Observation(
+            f"template {PROMPT_TEMPLATE_VERSION}",
+            _digest(PROMPT_TEMPLATE_VERSION, prompt_fingerprint()),
+        ),
+        # The encoding alone, not the model it is pinned beside. The model's identity is hashed
+        # into every recorded call's key, so restating it here would be a second announcement of a
+        # change that already announces itself — and would fire this entry on a model swap that
+        # left the counting untouched.
+        "tokenizer": Observation(
+            model.tokenizer.encoding,
+            _digest(model.tokenizer.encoding, tokenizer_fingerprint(model)),
+        ),
+        # Not built. It becomes a real computation at the point the thing it names exists, and the
+        # manifest is regenerated in the same change — which is the announcement.
         "judge_prompt": Observation(None, None),
     }
 
@@ -360,6 +375,7 @@ def verify_manifest(
     catalog_path: Path | None = None,
     pin: CatalogPin | None = None,
     config: EmbedderConfig | None = None,
+    model: ModelConfig | None = None,
 ) -> tuple[Comparison, ...]:
     """Recompute every pinned input and refuse to continue if one has moved.
 
@@ -368,7 +384,7 @@ def verify_manifest(
     """
     manifest = manifest if manifest is not None else get_manifest()
 
-    return check(manifest, observe(catalog_path, pin, config))
+    return check(manifest, observe(catalog_path, pin, config, model))
 
 
 def write_manifest(path: Path, observed: Mapping[str, Observation]) -> None:

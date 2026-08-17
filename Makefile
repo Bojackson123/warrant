@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model ingest ask up
+.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again up
 
 sync:
 	uv sync
@@ -29,9 +29,11 @@ db-down:
 migrate:
 	uv run python -m warrant.db
 
-# Recomputes every pinned input -- catalog, resolver, chunker, embedding model -- and exits
-# non-zero if one has moved without being re-recorded, naming which and what the move invalidates.
-# Needs no database, no model and no network.
+# Recomputes every pinned input -- catalog, resolver, chunker, embedding model, prompt template
+# and tokenizer -- and exits non-zero if one has moved without being re-recorded, naming which and
+# what the move invalidates. Needs no database, no embedding model and no network. It does need the
+# tokenizer encoding cached, because the only honest way to check what an encoding counts is to
+# count something with it; `make tokenizer` fetches it once.
 manifest:
 	uv run python -m warrant.manifest_check
 
@@ -59,6 +61,13 @@ chunks:
 model:
 	uv run python -m warrant.embedding
 
+# The other target that needs a network, and the last one. Fetches the generation model's own
+# tokenizer encoding into the local cache, then re-loads it in a second process with every socket
+# refused -- so what this proves is that counting a prompt afterwards reaches nothing, rather than
+# that a download succeeded. Run once per machine, like `make model`.
+tokenizer:
+	uv run python -m warrant.tokenizer
+
 # Embeds the catalog and writes the corpus. Migrates first, so this works against an empty
 # database in one command. Needs `make model` to have run once, and no network of its own.
 ingest:
@@ -70,6 +79,27 @@ ingest:
 # than only asserted in a test.
 ask:
 	uv run python -m warrant.retrieval "$(Q)"
+
+# Runs the real pipeline over data/fixtures/questions.json and writes what came back. The only
+# command here that spends money, and the only one that creates a recording. Needs the corpus, the
+# embedding weights, the tokenizer encoding and WARRANT_MODEL_API_KEY; refuses before any of that if
+# a pinned input has moved. A recording that already exists is left alone, so re-running is free and
+# produces no diff -- `make record-again` is what a scheduled re-record uses.
+record:
+	uv run python -m warrant.fixtures
+
+# The half of the above that needs no API key: embeds each question and stores the vector replay
+# will retrieve it with. Separated because it genuinely costs nothing, and folding it into a command
+# that needs a credential would make it look as though it did.
+record-queries:
+	uv run python -m warrant.fixtures --queries
+
+# Re-records every answer whether or not one is already stored. This is the monthly cadence and the
+# response to a manifest change: the keys have not moved, what the model says may have, and the diff
+# is the whole point. Its own target rather than a flag people have to remember, because the
+# difference between this and `make record` is a provider bill.
+record-again:
+	uv run python -m warrant.fixtures --force
 
 # Brings up everything the compose file defines. That is the database alone today; the API and
 # the console join it once they exist.
