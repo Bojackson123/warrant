@@ -69,7 +69,9 @@ tokenizer:
 	uv run python -m warrant.tokenizer
 
 # Embeds the catalog and writes the corpus. Migrates first, so this works against an empty
-# database in one command. Needs `make model` to have run once, and no network of its own.
+# database in one command. Needs both one-off fetches to have run -- `make model` for the weights it
+# embeds with, and `make tokenizer` for the encoding the manifest check counts a sample with -- and
+# no network of its own.
 ingest:
 	uv run python -m warrant.ingest
 
@@ -88,9 +90,9 @@ ask:
 record:
 	uv run python -m warrant.fixtures
 
-# The half of the above that needs no API key: embeds each question and stores the vector replay
-# will retrieve it with. Separated because it genuinely costs nothing, and folding it into a command
-# that needs a credential would make it look as though it did.
+# The half of the above that needs no API key and no database: embeds each question and stores the
+# vector replay will retrieve it with. Separated because it genuinely costs nothing, and folding it
+# into a command that needs a credential would make it look as though it did.
 record-queries:
 	uv run python -m warrant.fixtures --queries
 

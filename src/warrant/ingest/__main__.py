@@ -3,8 +3,10 @@
     python -m warrant.ingest
 
 One command from an empty database, so it migrates before it writes rather than requiring
-`make migrate` first. No API key and no network: the weights come from the local cache, which
-`make model` fills once.
+`make migrate` first. No API key and no network: the weights come from the local cache that
+`make model` fills once, and the manifest check below counts a sample with the pinned tokenizer
+encoding, which comes from the cache `make tokenizer` fills once. Both are one-off fetches, and
+this command needs them both to have happened.
 
 Everything that can fail cheaply is checked before anything expensive happens. Embedding the
 catalog is minutes of CPU, and discovering afterwards that the file on disk is not the pinned one,
@@ -30,6 +32,7 @@ from warrant.ingest.chunker import Chunk, chunk_catalog, chunker_fingerprint
 from warrant.ingest.pipeline import IngestError, IngestReport, ingest
 from warrant.manifest import ManifestError, verify_manifest
 from warrant.settings import get_settings
+from warrant.tokenizer import TokenizerError
 
 # Progress is printed at most this often. A line per batch is thirty-odd lines of noise; a line
 # per tenth is enough to tell a run that is working from one that is stuck, and reads the same in
@@ -101,8 +104,12 @@ def main() -> int:
         MigrationStateError,
         SchemaDimensionError,
         SchemaDriftError,
+        TokenizerError,
     ) as error:
-        # Each of these names what disagreed with what, and none is helped by a traceback.
+        # Each of these names what disagreed with what, and none is helped by a traceback. The
+        # tokenizer's arrives from the manifest check rather than from anything here: it counts a
+        # sample with the pinned encoding, so this command needs that one-off fetch as much as it
+        # needs the weights.
         print(f"error: {error}", file=sys.stderr)
         return 1
     except psycopg.OperationalError as error:

@@ -272,10 +272,15 @@ def test_matching_inputs_are_served(store: MappingFixtureStore, request_: ModelR
     assert client.complete(request_).answer == ANSWER
 
 
-def test_the_default_check_is_the_real_one(store: MappingFixtureStore) -> None:
+@pytest.mark.tokenizer
+def test_the_default_check_is_the_real_one(
+    cached_encoding: None, store: MappingFixtureStore
+) -> None:
     """Nothing else proves the injectable check is wired to `verify_manifest` by default.
 
-    Parses the catalog, which is why it is one test rather than a fixture every test uses.
+    Parses the catalog and counts a sample with the pinned encoding, which is why it is one test
+    rather than a fixture every test uses -- and why it is the only one here that needs a fetch to
+    have happened.
     """
     assert ReplayClient(store).mode == "replay"
 

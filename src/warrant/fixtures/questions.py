@@ -13,8 +13,8 @@ stops the second class quietly reading as a set of failures.
 
 **Nothing here has a manifest entry, deliberately.** Adding a question invalidates nothing: it has
 no recording yet, which the recorder handles by recording it and which replay handles by declining
-to generate. That is the same argument `data/model.json` makes for its own absence -- the manifest
-is for inputs whose change would otherwise go unnoticed, and this one cannot.
+to generate. That is the same argument the model pin in `data/model.json` makes for its own absence
+-- the manifest is for inputs whose change would otherwise go unnoticed, and this one cannot.
 """
 
 from __future__ import annotations
@@ -94,7 +94,14 @@ def load_question_set(path: Path) -> QuestionSet:
     A parameter rather than a global, for the reason every other loader here takes one: it is how
     a test presents a different list without editing the file the whole project reads.
     """
-    document = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        raise QuestionSetError(
+            f"{path} is not valid JSON: {error}. The file is hand-edited, so a trailing comma is "
+            "the likely cause, and it is this module's failure to report rather than a traceback "
+            "out of the parser."
+        ) from error
 
     # The file carries a `_comment` block saying what the list is and is not. Removed by name, the
     # way the other hand-edited files here have theirs removed.

@@ -110,6 +110,13 @@ wrote it, so an eight-month-old recording is visibly eight months old.
 `make record` records only what is missing, so an ordinary run costs nothing and produces no diff.
 The distinction is a provider bill, which is why it is two commands and not a flag.
 
+A re-record renews the answers and leaves the recorded question vectors alone. Those are rewritten
+when what is stored no longer covers the current question list under the current embedder pin, and
+otherwise only when `python -m warrant.fixtures --force-queries` asks for it outright. Folding them
+into the monthly command would re-embed them on whichever machine happened to run it, moving their
+last bits — which is the machine-to-machine wobble they exist to remove, and would orphan every
+recording keyed through the ranking they produced.
+
 ### Not every manifest change costs the same
 
 | Entry that moved | What has to be re-recorded |

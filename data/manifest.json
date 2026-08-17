@@ -97,10 +97,10 @@
         "are keyed on the whole rendered request, so one changed character is a miss rather than",
         "a stale hit -- which is the point.",
         "",
-        "The digest is over what the template makes of a fixed retrieval, not over the version",
-        "string beside it, because the version is a claim somebody maintains and this is what",
-        "catches the claim going stale: a reordered section or a dropped field moves every key",
-        "downstream while the version sits still."
+        "The digest is over the version string and over what the template makes of a fixed",
+        "retrieval. The second half is the one doing the work: the version is a claim somebody",
+        "maintains, and this is what catches the claim going stale, because a reordered section",
+        "or a dropped field moves every key downstream while the version sits still."
       ],
       "covers": "The template that renders retrieved chunks and a question into the request a model is sent.",
       "identity": "template 1",

@@ -201,6 +201,45 @@ def test_an_index_that_does_not_match_the_array_is_refused(
     assert "distinct row" in str(raised.value)
 
 
+def test_an_index_listing_one_question_twice_is_refused(
+    root: Path, encoder: StubEncoder, config: EmbedderConfig
+) -> None:
+    """Two rows under one question collapse into one vector on the way in, silently.
+
+    The distinct-row check does not see this: the rows are distinct, the array is the right shape,
+    and what is lost is a vector nothing can address afterwards.
+    """
+    _record(root, encoder, config)
+
+    index_path = root / "index.json"
+    document = index_path.read_text(encoding="utf-8")
+    first, second = sorted(QUESTIONS)[:2]
+
+    index_path.write_text(document.replace(second, first), encoding="utf-8")
+
+    with pytest.raises(QueryVectorError) as raised:
+        read_query_vectors(root, config)
+
+    assert "more than one row" in str(raised.value)
+
+
+def test_an_unreadable_array_is_refused_as_this_module_s_error(
+    root: Path, encoder: StubEncoder, config: EmbedderConfig
+) -> None:
+    """A truncated `.npy` fails as a `QueryVectorError` rather than as whatever numpy raises.
+
+    The recorder treats an unreadable store as an answer of no and re-embeds, and it can only do
+    that for failures this module names. A bare `ValueError` out of the loader would escape that
+    and end the run in a traceback.
+    """
+    _record(root, encoder, config)
+
+    (root / "vectors.npy").write_bytes(b"not an array")
+
+    with pytest.raises(QueryVectorError):
+        read_query_vectors(root, config)
+
+
 def test_recording_the_same_question_twice_is_refused(
     root: Path, encoder: StubEncoder, config: EmbedderConfig
 ) -> None:

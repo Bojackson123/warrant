@@ -111,6 +111,29 @@ def test_the_answer_is_written_as_separate_lines(store: DirectoryFixtureStore) -
             assert line in written
 
 
+def test_the_characters_the_catalog_uses_are_written_as_themselves(
+    store: DirectoryFixtureStore,
+) -> None:
+    """A section mark is a section mark in the file, not `\\u00a7`.
+
+    The same requirement as the line splitting above, arriving through a different default: an
+    answer quoting the catalog is full of characters that JSON will escape if asked to, and a
+    paragraph of escapes is a paragraph nobody reviews.
+    """
+    answer = "The catalog says “no” at § 3, per the — rather long — note."
+
+    path = write_fixture(store.root, _call(answer=answer))
+    written = path.read_text(encoding="utf-8")
+
+    assert "§" in written
+    assert "\\u" not in written
+
+    served = store.get(KEY)
+
+    assert served is not None
+    assert served.answer == answer
+
+
 def test_the_provenance_is_written_before_the_answer(store: DirectoryFixtureStore) -> None:
     """The part that changes on a re-record sits at the end, not in the middle of the metadata."""
     written = write_fixture(store.root, _call()).read_text(encoding="utf-8")

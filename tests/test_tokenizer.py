@@ -158,8 +158,13 @@ def test_the_recorded_cost_of_a_tokenizer_change_is_counts_alone() -> None:
     assert set(entry.invalidates) == {"counts"}
 
 
-def test_an_encoding_the_library_does_not_know_is_refused() -> None:
-    """A typo in the pin fails naming the pin, rather than falling back to a default."""
+def test_an_encoding_the_library_does_not_know_is_refused(tokenizer: Tokenizer) -> None:
+    """A typo in the pin fails naming the pin, rather than falling back to a default.
+
+    Requests the cache it does not otherwise use, because the empty-cache refusal quotes the pinned
+    name too — so without it this passes on the message for a machine that has fetched nothing,
+    having never asked the library about the encoding at all.
+    """
     pinned = get_model_config()
     wrong = ModelConfig(
         name=pinned.name,

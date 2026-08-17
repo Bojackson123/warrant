@@ -144,8 +144,11 @@ def write_query_vectors(
     with (root / _VECTORS_NAME).open("wb") as stream:
         np.save(stream, ordered, allow_pickle=False)
 
+    # `ensure_ascii=False` for the reason a recording is written that way: the index holds question
+    # text, and a question that quotes the catalog holds characters no reviewer should have to read
+    # as escapes.
     (root / _INDEX_NAME).write_text(
-        json.dumps(index.model_dump(mode="json"), indent=2) + "\n",
+        json.dumps(index.model_dump(mode="json"), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
         newline="\n",
     )
@@ -177,8 +180,17 @@ def read_query_vectors(root: Path, config: EmbedderConfig | None = None) -> Reco
 
     _verify_pin(index, pinned)
 
-    with vectors_path.open("rb") as stream:
-        stored = np.load(stream, allow_pickle=False)
+    # `np.load` reports a truncated or non-`.npy` file as a bare `ValueError`. Carried here as the
+    # module's own error so that a caller which treats an unreadable store as an answer of no --
+    # the recorder does, before re-embedding -- catches it along with everything else this read
+    # refuses, rather than only the failures that happen to be raised by hand.
+    try:
+        with vectors_path.open("rb") as stream:
+            stored = np.load(stream, allow_pickle=False)
+    except ValueError as error:
+        raise QueryVectorError(
+            f"{vectors_path} is not a readable array of vectors: {error}"
+        ) from error
 
     if stored.dtype != VECTOR_DTYPE:
         raise QueryVectorError(
@@ -200,6 +212,15 @@ def read_query_vectors(root: Path, config: EmbedderConfig | None = None) -> Reco
         raise QueryVectorError(
             f"{index_path} does not assign each question a distinct row. Every vector would still "
             "load; some questions would simply be answered with another question's vector."
+        )
+
+    questions = [query.question for query in index.queries]
+
+    if len(set(questions)) != len(questions):
+        raise QueryVectorError(
+            f"{index_path} lists the same question against more than one row. A question is the "
+            "identity of its vector here, so the entries would collapse into one on the way in -- "
+            "leaving a vector nothing can reach and a count that disagrees with the file."
         )
 
     return RecordedQueries(

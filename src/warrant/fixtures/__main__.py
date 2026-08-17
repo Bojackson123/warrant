@@ -1,19 +1,31 @@
 """Record the fixtures: the question list in, reviewable recordings out.
 
-    python -m warrant.fixtures [--queries] [--force]
+    python -m warrant.fixtures [--queries] [--force] [--force-queries]
 
 The only command here that spends money, and the only one that creates a recording. It runs the
 real pipeline -- retrieve, render, ask -- so what it writes is what the request path would have
 produced, rather than an approximation assembled for storage.
 
-`--queries` stops after the question vectors, which need a local model and no credential. Without a
-key that is what happens anyway, and the command says so rather than failing: half of this work is
-genuinely doable on a machine with no account, and refusing it outright would make the recorded
-vectors look like they cost something they do not.
+`--queries` stops after the question vectors, which need a local model, no credential and no
+database -- the corpus is only reached by the stage that asks the provider, so the check that it is
+the pinned one waits for that stage rather than gating this one. Without a key the run stops there
+anyway, and the command says so rather than failing: half of this work is genuinely doable on a
+machine with no account, and refusing it outright would make the recorded vectors look like they
+cost something they do not.
 
-`--force` re-records what is already on disk. That is the monthly cadence: the keys have not moved,
-the answers may have, and the diff is the point. Without it a recording that exists is left exactly
-as it is, so an ordinary run costs nothing and produces no diff.
+`--force` re-records every answer, whether or not one is already stored. That is the monthly
+cadence: the keys have not moved, the answers may have, and the diff is the point. Without it a
+recording that exists is left exactly as it is, so an ordinary run costs nothing and produces no
+diff.
+
+`--force-queries` is a separate flag, and the separation is the mechanism rather than an extra knob.
+The recorded question vectors are what make a key the same on every machine, so re-embedding them
+somewhere other than where they were recorded moves their last bits -- which can reorder two
+near-equal chunks, change the prompt built from them, and orphan every recording keyed on the old
+one. A flag that renews an answer must therefore not also rewrite the vectors that answer's key
+rests on. The query stage already re-embeds by itself whenever what is stored does not cover this
+question list under this pin, so this is for the one case it cannot see: a deliberate change to the
+embedding libraries underneath an unmoved model pin.
 
 **The manifest is checked before anything else happens**, and the ordering is the reason this
 command has a check at all. A recording made from inputs this build no longer carries is not
@@ -55,9 +67,9 @@ from warrant.retrieval.search import RetrievalError
 from warrant.settings import get_settings
 from warrant.tokenizer import TokenizerError, load_tokenizer
 
-_USAGE = "usage: python -m warrant.fixtures [--queries] [--force]"
+_USAGE = "usage: python -m warrant.fixtures [--queries] [--force] [--force-queries]"
 
-_FLAGS = {"--queries", "--force"}
+_FLAGS = {"--queries", "--force", "--force-queries"}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -69,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
 
     queries_only = "--queries" in arguments
     force = "--force" in arguments
+    force_queries = "--force-queries" in arguments
 
     settings = get_settings()
     root = settings.fixtures_path
@@ -87,12 +100,20 @@ def main(argv: list[str] | None = None) -> int:
 
         print(f"{len(questions.questions)} questions, list {questions.version}.", flush=True)
 
-        with connection() as conn:
-            verify_corpus(conn, config)
+        # Only the generation stage reads the corpus, so only a run that will reach it needs the
+        # corpus to be the pinned one. Checked before the embedder loads rather than after, keeping
+        # the cheap refusal ahead of the expensive step, and skipped entirely under `--queries` --
+        # which is documented as needing no database, a claim running this unconditionally made
+        # false for anybody who took it at its word.
+        if not queries_only:
+            with connection() as conn:
+                verify_corpus(conn, config)
 
         embedder = load_embedder(config)
 
-        vectors = record_query_vectors(root, questions, embedder, config, today, force)
+        # `force_queries`, never `force`. See the module docstring: renewing an answer must not
+        # rewrite the vectors that answer's key was computed through.
+        vectors = record_query_vectors(root, questions, embedder, config, today, force_queries)
         _report_queries(vectors, questions.version)
 
         if queries_only:

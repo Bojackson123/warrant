@@ -6,8 +6,11 @@ generation pin needs no such comparison, because the model's identity and every 
 parameter are hashed into the key a recorded call is stored under. Changing either produces a
 miss, which is a loud, local failure rather than a stale answer served confidently.
 
-That is why this file has no entry in the manifest. The manifest exists for inputs whose change
-would otherwise go unnoticed; this one cannot change unnoticed.
+That is why the model and its sampling have no entry in the manifest. The manifest exists for
+inputs whose change would otherwise go unnoticed, and these cannot change unnoticed. The tokenizer
+pinned alongside them is the exception and does have an entry, for the reason given on
+`TokenizerPin` below: counting a prompt changes nothing that is sent, so a moved encoding leaves
+every stored artefact valid and every reported size wrong.
 
 **Sampling lives here rather than in `Settings`.** A value that decides what a model returns is a
 pin, not configuration: two machines reading different temperatures would key their fixtures

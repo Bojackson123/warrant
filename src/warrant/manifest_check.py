@@ -3,9 +3,14 @@
     python -m warrant.manifest_check
     python -m warrant.manifest_check --write
 
-Reads the manifest, the two pins and the catalog, and touches nothing else — no database, no
-embedding model, no network — so the question "are the inputs this build carries the ones
-everything stored was made from?" is answerable on a machine that has none of those.
+Reads the manifest, the two pins, the catalog and the cached tokenizer encoding, and touches
+nothing else — no database, no embedding model, no network — so the question "are the inputs this
+build carries the ones everything stored was made from?" is answerable on a machine that has none
+of those.
+
+The encoding is the one input here that has to have been fetched first. What an encoding counts can
+only be checked by counting something with it, so `make tokenizer` is a prerequisite of this check
+rather than only of the commands that report a prompt size.
 
 The two modes are separate rather than one command with a repair path, and that is the mechanism
 rather than a preference about interfaces. A check that fixes what it finds records whatever
@@ -38,6 +43,7 @@ from warrant.manifest import (
     write_manifest,
 )
 from warrant.settings import get_settings
+from warrant.tokenizer import TokenizerError
 
 _USAGE = "usage: python -m warrant.manifest_check [--write]"
 
@@ -65,8 +71,12 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         comparisons = verify_manifest(manifest)
-    except (CatalogError, CatalogPinError, ManifestError) as error:
-        # Each names what disagreed with what, and none is helped by a traceback.
+    except (CatalogError, CatalogPinError, ManifestError, TokenizerError) as error:
+        # Each names what disagreed with what, and none is helped by a traceback. The tokenizer's
+        # is the one that is not a disagreement: observing that entry counts a sample with the
+        # pinned encoding, so a machine that has not run `make tokenizer` cannot answer the
+        # question this command asks. Its message names the cache and the command that fills it,
+        # which is what somebody in that position needs.
         print(f"error: {error}", file=sys.stderr)
         return 1
     except (json.JSONDecodeError, ValidationError) as error:

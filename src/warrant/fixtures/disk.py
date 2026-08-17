@@ -114,12 +114,20 @@ def write_fixture(root: Path, call: RecordedCall) -> Path:
     Written with an explicit `\\n`, because a recording is compared byte for byte across machines
     and letting the platform decide its line endings would make a Windows re-record a whole-file
     diff of a file nobody changed.
+
+    Written as UTF-8 rather than as escapes, for the same reason the answer is split into lines: a
+    model quoting the catalog returns section marks and curly quotes, and `\\u00a7` in place of `§`
+    is a readable diff given up for nothing -- the file is already declared UTF-8 on the way in.
     """
     root.mkdir(parents=True, exist_ok=True)
     path = root / f"{call.key}{_SUFFIX}"
 
     document = call.model_dump(mode="json")
-    path.write_text(json.dumps(document, indent=_INDENT) + "\n", encoding="utf-8", newline="\n")
+    path.write_text(
+        json.dumps(document, indent=_INDENT, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
     return path
 

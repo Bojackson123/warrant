@@ -5,6 +5,10 @@ retrieved control in the order the search ranked them, because an answer is only
 text the reader can see. And the rendering has to be pinned by something other than a version
 constant, because a version constant is a claim and the failure it cannot catch -- somebody changes
 how the sections go together and does not say so -- silently invalidates every recorded answer.
+
+Rendering needs nothing fetched, which is why the template's own tests are unmarked. The three at
+the end observe the pinned inputs as a set, and observing them counts a sample with the pinned
+encoding, so those carry the marker and skip without it.
 """
 
 from __future__ import annotations
@@ -106,7 +110,8 @@ def test_the_fingerprint_is_stable_across_calls() -> None:
     assert prompt_fingerprint() == prompt_fingerprint()
 
 
-def test_the_manifest_records_the_template_this_build_carries() -> None:
+@pytest.mark.tokenizer
+def test_the_manifest_records_the_template_this_build_carries(cached_encoding: None) -> None:
     """The version and the fingerprint reach the manifest as one entry.
 
     The entry is what makes a template change announce itself. Observing it here is the check that
@@ -119,8 +124,9 @@ def test_the_manifest_records_the_template_this_build_carries() -> None:
     assert observed.digest != prompt_fingerprint()
 
 
+@pytest.mark.tokenizer
 def test_an_announced_template_change_fails_on_its_identity(
-    monkeypatch: pytest.MonkeyPatch,
+    cached_encoding: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A bumped version with no re-record: the change was declared and nothing was rebuilt."""
     monkeypatch.setattr(manifest_module, "PROMPT_TEMPLATE_VERSION", "2")
@@ -133,8 +139,9 @@ def test_an_announced_template_change_fails_on_its_identity(
     assert "'template 1'" in message and "'template 2'" in message
 
 
+@pytest.mark.tokenizer
 def test_an_unannounced_template_change_fails_on_its_digest(
-    monkeypatch: pytest.MonkeyPatch,
+    cached_encoding: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """The failure a version string cannot catch, from the template's side.
 

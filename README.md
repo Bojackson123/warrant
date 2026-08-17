@@ -30,7 +30,7 @@ make ask Q="how are inactive accounts disabled?"
 
 make record-queries
                 # embed each recorded question and store the vector replay retrieves it with.
-                # Needs no API key.
+                # Needs no API key and no database.
 make record     # run the real pipeline over data/fixtures/questions.json and write down what
                 # came back. The only command here that spends money.
 make record-again

@@ -5,6 +5,11 @@ manifest no longer recognises, and the ordering of that refusal matters as much 
 itself -- a check that ran after the first provider call would have paid for a recording it then
 declined to trust. And it does not re-record what is already there, because a recorder that
 rewrote its own output would put a date change into every committed file on every run.
+
+The command tests at the end are about which stages a given set of flags reaches, and they stub the
+stages themselves out. That is the subject: a query stage that reached a database, or an answer
+re-record that reached the question vectors, would each be a stage running where its cost was
+documented as not applying.
 """
 
 from __future__ import annotations
@@ -18,11 +23,11 @@ import pytest
 
 from warrant import manifest as manifest_module
 from warrant.embedder_config import EmbedderConfig, get_embedder_config
-from warrant.embedding import VECTOR_DTYPE, ProgressCallback
+from warrant.embedding import VECTOR_DTYPE, Encoder, ProgressCallback
 from warrant.fixtures import __main__ as record_command
 from warrant.fixtures.queries import read_query_vectors
 from warrant.fixtures.questions import QuestionSet, load_question_set
-from warrant.fixtures.recorder import QUERIES_DIRECTORY, record_query_vectors
+from warrant.fixtures.recorder import QUERIES_DIRECTORY, QueryReport, record_query_vectors
 from warrant.settings import get_settings
 
 TODAY = date(2026, 8, 17)
@@ -80,6 +85,45 @@ def encoder(config: EmbedderConfig) -> StubEncoder:
 def questions() -> QuestionSet:
     """The committed list, read through the loader that the command uses."""
     return load_question_set(get_settings().fixtures_path / "questions.json")
+
+
+@pytest.fixture
+def query_stage(monkeypatch: pytest.MonkeyPatch) -> list[bool]:
+    """Stand in for the query stage, collecting whether it was told to re-embed.
+
+    The database and the embedder are replaced along with it. What the tests using this are about is
+    which stages a set of flags reaches and what it asks of them, and a connection that raises when
+    it is opened is how the "needs no database" claim gets checked rather than restated.
+    """
+    forced: list[bool] = []
+
+    def record(
+        root: Path,
+        questions: QuestionSet,
+        encoder: Encoder,
+        config: EmbedderConfig,
+        today: date,
+        force: bool = False,
+    ) -> QueryReport:
+        forced.append(force)
+
+        return QueryReport(
+            questions=len(questions.questions),
+            dimensions=config.dimensions,
+            vector_bytes=0,
+            rewritten=force,
+        )
+
+    def refuse() -> None:
+        raise AssertionError("the command opened a database connection")
+
+    monkeypatch.setattr(record_command, "connection", refuse)
+    monkeypatch.setattr(
+        record_command, "load_embedder", lambda pinned: StubEncoder(pinned.dimensions)
+    )
+    monkeypatch.setattr(record_command, "record_query_vectors", record)
+
+    return forced
 
 
 def test_every_question_gets_a_vector(
@@ -169,8 +213,11 @@ def test_a_changed_question_list_is_re_embedded(
     assert record_query_vectors(tmp_path, grown, encoder, config, TODAY).rewritten
 
 
+@pytest.mark.tokenizer
 def test_a_stale_manifest_stops_the_command_before_it_reaches_a_provider(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    cached_encoding: None,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     """The refusal this command exists to make, and the ordering it has to make it in.
 
@@ -178,6 +225,10 @@ def test_a_stale_manifest_stops_the_command_before_it_reaches_a_provider(
     text inside its prompt came from a corpus that has been superseded. Checking after the first
     call would mean paying for a recording and then declining to trust it, so the assertion is that
     nothing ever asked for a client at all.
+
+    The encoding is required because the manifest check counts a sample with it. Without it the
+    command still refuses, and it refuses for a reason that has nothing to do with the chunker --
+    which is a pass this test would not have earned.
     """
     asked: list[object] = []
 
@@ -195,6 +246,47 @@ def test_a_stale_manifest_stops_the_command_before_it_reaches_a_provider(
     error = capsys.readouterr().err
     assert "`chunker` entry" in error
     assert "error: " in error
+
+
+@pytest.mark.tokenizer
+def test_the_query_stage_reaches_no_database(
+    cached_encoding: None, query_stage: list[bool]
+) -> None:
+    """`--queries` is documented as needing no API key and no database, so it must need neither.
+
+    Only the stage that asks the provider reads the corpus, so only a run that will reach that stage
+    needs the corpus checked. Verifying it before the early return instead would make the half of
+    this command that costs nothing require a running, ingested Postgres.
+    """
+    assert record_command.main(["--queries"]) == 0
+    assert query_stage == [False]
+
+
+@pytest.mark.tokenizer
+def test_forcing_the_answers_leaves_the_recorded_vectors_alone(
+    cached_encoding: None, query_stage: list[bool]
+) -> None:
+    """The flag that renews an answer must not rewrite the vectors its key was computed through.
+
+    Re-embedding the questions on a machine other than the one that recorded them moves their last
+    bits, which can reorder two near-tied chunks and change the prompt -- so the monthly re-record
+    would orphan every recording it was meant to renew, on the strength of running elsewhere.
+    """
+    assert record_command.main(["--queries", "--force"]) == 0
+    assert query_stage == [False]
+
+
+@pytest.mark.tokenizer
+def test_the_vectors_are_re_embedded_only_when_that_is_what_was_asked_for(
+    cached_encoding: None, query_stage: list[bool]
+) -> None:
+    """The capability still exists, behind a flag that says what it does.
+
+    It is for the change the query stage cannot notice by itself: an embedding library moving
+    underneath a model pin that has not.
+    """
+    assert record_command.main(["--queries", "--force-queries"]) == 0
+    assert query_stage == [True]
 
 
 def test_an_unknown_argument_is_refused(capsys: pytest.CaptureFixture[str]) -> None:

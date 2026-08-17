@@ -1,8 +1,13 @@
 """The record of what this build's inputs are, and the check that refuses when one has moved.
 
 Every mutation below is the same shape: change one input, run the check, and assert it fails
-naming that input rather than failing generally. That is the ticket the manifest exists to close —
+naming that input rather than failing generally. That is the failure the manifest exists to close —
 a green build over a corpus and a set of recorded calls that were made from something else.
+
+Marked `tokenizer` and skipping without it wherever a test observes the inputs, because observing
+them counts a sample with the pinned encoding. The tests that only read and reject a malformed file
+are deliberately left unmarked: they need nothing fetched, and they are the half of this file that
+should still run on a machine where nothing has been set up.
 """
 
 from __future__ import annotations
@@ -57,7 +62,7 @@ def manifest_path() -> Path:
 
 
 @pytest.fixture(scope="module")
-def observations() -> dict[str, Observation]:
+def observations(cached_encoding: None) -> dict[str, Observation]:
     """What this build's inputs actually are, computed once.
 
     Both fingerprints walk the whole catalog, so recomputing them per test would be most of this
@@ -101,7 +106,10 @@ def manifest_copy(
     get_manifest.cache_clear()
 
 
-def test_the_committed_manifest_describes_this_build(manifest: Manifest) -> None:
+@pytest.mark.tokenizer
+def test_the_committed_manifest_describes_this_build(
+    cached_encoding: None, manifest: Manifest
+) -> None:
     """The load-bearing assertion: what is recorded is what this build actually produces.
 
     This is the test that goes red when somebody changes a chunking rule, a rendering rule or the
@@ -128,8 +136,9 @@ def test_a_different_catalog_fails_naming_the_catalog(
     assert "`catalog` entry" in str(raised.value)
 
 
+@pytest.mark.tokenizer
 def test_a_changed_pin_fails_even_when_the_file_matches_it(
-    tmp_path: Path, manifest: Manifest, pin: CatalogPin
+    cached_encoding: None, tmp_path: Path, manifest: Manifest, pin: CatalogPin
 ) -> None:
     """A pin edited to point somewhere else, with a catalog that still satisfies its hash.
 
@@ -147,8 +156,9 @@ def test_a_changed_pin_fails_even_when_the_file_matches_it(
     assert pin.release in message, "the recorded release has to be in the message"
 
 
+@pytest.mark.tokenizer
 def test_an_announced_chunker_change_fails_on_its_identity(
-    monkeypatch: pytest.MonkeyPatch, manifest: Manifest
+    cached_encoding: None, monkeypatch: pytest.MonkeyPatch, manifest: Manifest
 ) -> None:
     """A bumped version with no re-record: the change was declared and nothing was rebuilt."""
     monkeypatch.setattr(manifest_module, "CHUNKER_VERSION", "2")
@@ -162,8 +172,9 @@ def test_an_announced_chunker_change_fails_on_its_identity(
     assert "announced" in message
 
 
+@pytest.mark.tokenizer
 def test_an_unannounced_chunker_change_fails_on_its_digest(
-    monkeypatch: pytest.MonkeyPatch, manifest: Manifest
+    cached_encoding: None, monkeypatch: pytest.MonkeyPatch, manifest: Manifest
 ) -> None:
     """The failure this whole mechanism exists for.
 
@@ -185,8 +196,9 @@ def test_an_unannounced_chunker_change_fails_on_its_digest(
     )
 
 
+@pytest.mark.tokenizer
 def test_an_announced_resolution_change_fails_on_its_identity(
-    monkeypatch: pytest.MonkeyPatch, manifest: Manifest
+    cached_encoding: None, monkeypatch: pytest.MonkeyPatch, manifest: Manifest
 ) -> None:
     monkeypatch.setattr(manifest_module, "RESOLUTION_VERSION", "2")
 
@@ -196,8 +208,9 @@ def test_an_announced_resolution_change_fails_on_its_identity(
     assert "`parameter_resolution` entry" in str(raised.value)
 
 
+@pytest.mark.tokenizer
 def test_an_unannounced_resolution_change_fails_on_its_digest(
-    monkeypatch: pytest.MonkeyPatch, manifest: Manifest
+    cached_encoding: None, monkeypatch: pytest.MonkeyPatch, manifest: Manifest
 ) -> None:
     """A rendering rule moved without the version moving — the resolver's own docstring's worry."""
     monkeypatch.setattr(manifest_module, "resolution_fingerprint", lambda catalog: "0" * 64)
@@ -210,8 +223,9 @@ def test_an_unannounced_resolution_change_fails_on_its_digest(
     assert "'resolution 1' is unchanged" in message
 
 
+@pytest.mark.tokenizer
 def test_a_swapped_embedder_fails_naming_everything_downstream(
-    manifest: Manifest, config: EmbedderConfig
+    cached_encoding: None, manifest: Manifest, config: EmbedderConfig
 ) -> None:
     """The widest change there is, and the message has to say so rather than mention the corpus."""
     swapped = config.model_copy(update={"revision": "f" * 40})
@@ -226,8 +240,9 @@ def test_a_swapped_embedder_fails_naming_everything_downstream(
     assert "no partial re-record" in message
 
 
+@pytest.mark.tokenizer
 def test_a_query_prefix_change_moves_the_embedder_digest(
-    manifest: Manifest, config: EmbedderConfig
+    cached_encoding: None, manifest: Manifest, config: EmbedderConfig
 ) -> None:
     """Same model, same revision, different instruction prefix.
 
@@ -245,8 +260,9 @@ def test_a_query_prefix_change_moves_the_embedder_digest(
     assert f"'{config.name} @ {config.revision[:8]}' is unchanged" in message
 
 
+@pytest.mark.tokenizer
 def test_the_corpus_expectations_do_not_move_the_embedder_digest(
-    manifest: Manifest, config: EmbedderConfig
+    cached_encoding: None, manifest: Manifest, config: EmbedderConfig
 ) -> None:
     """Those two fields describe a corpus rather than a model, and are excluded on purpose."""
     tweaked = config.model_copy(update={"expected_chunks": 1, "expected_corpus_bytes": 1})
@@ -269,6 +285,7 @@ def test_the_unbuilt_slots_exist_and_are_declared_absent(manifest: Manifest) -> 
         assert entry.invalidates, f"{name} does not say what changing it costs"
 
 
+@pytest.mark.tokenizer
 def test_an_input_that_starts_existing_is_a_mismatch(
     manifest: Manifest, observed: dict[str, Observation]
 ) -> None:
@@ -283,6 +300,7 @@ def test_an_input_that_starts_existing_is_a_mismatch(
     assert "It exists now, so its cost applies now" in message
 
 
+@pytest.mark.tokenizer
 def test_an_input_that_stops_existing_is_a_mismatch(
     manifest: Manifest, observed: dict[str, Observation]
 ) -> None:
@@ -295,6 +313,7 @@ def test_an_input_that_stops_existing_is_a_mismatch(
     assert "does not produce it at all" in str(raised.value)
 
 
+@pytest.mark.tokenizer
 def test_the_costliest_difference_is_reported_first(
     manifest: Manifest, observed: dict[str, Observation]
 ) -> None:
@@ -328,6 +347,7 @@ def test_the_costliest_kind_outranks_the_larger_count() -> None:
     assert "`deep` entry" in str(raised.value)
 
 
+@pytest.mark.tokenizer
 def test_reordering_the_file_does_not_change_which_failure_is_reported(
     tmp_path: Path, manifest_path: Path, manifest: Manifest, observed: dict[str, Observation]
 ) -> None:
@@ -354,6 +374,7 @@ def test_reordering_the_file_does_not_change_which_failure_is_reported(
     assert str(as_committed.value) == str(reordered.value)
 
 
+@pytest.mark.tokenizer
 def test_an_input_nothing_observes_is_refused(
     manifest: Manifest, observed: dict[str, Observation]
 ) -> None:
@@ -499,8 +520,9 @@ def test_writing_rewrites_only_the_recorded_values(
     assert after["entries"]["embedder"] == before["entries"]["embedder"]
 
 
+@pytest.mark.tokenizer
 def test_writing_is_stable_over_the_committed_file(
-    manifest_copy: Path, committed_bytes: bytes
+    cached_encoding: None, manifest_copy: Path, committed_bytes: bytes
 ) -> None:
     """Regenerating an unchanged build produces the file byte-for-byte.
 
@@ -519,17 +541,27 @@ def test_writing_is_stable_over_the_committed_file(
     assert written == committed_bytes
 
 
+@pytest.mark.tokenizer
 def test_the_check_never_writes(
-    monkeypatch: pytest.MonkeyPatch, manifest_copy: Path, committed_bytes: bytes
+    cached_encoding: None,
+    monkeypatch: pytest.MonkeyPatch,
+    manifest_copy: Path,
+    committed_bytes: bytes,
 ) -> None:
-    """The whole mechanism: automatic repair would make this a record of whatever is on disk."""
+    """The whole mechanism: automatic repair would make this a record of whatever is on disk.
+
+    The encoding is required rather than merely convenient here. Every other way this command can
+    exit non-zero satisfies the assertion below just as well, so without it the test would pass on
+    an unconfigured machine having never reached the mismatch it is about.
+    """
     monkeypatch.setattr(manifest_module, "CHUNKER_VERSION", "2")
 
     assert manifest_check.main([]) == 1
     assert manifest_copy.read_bytes() == committed_bytes
 
 
-def test_the_check_passes_on_this_build() -> None:
+@pytest.mark.tokenizer
+def test_the_check_passes_on_this_build(cached_encoding: None) -> None:
     assert manifest_check.main([]) == 0
 
 
