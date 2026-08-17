@@ -32,13 +32,19 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 from warrant.api.pipeline import AppResources, answer_question
-from warrant.api.schemas import AnswerResponse, QuestionRequest
+from warrant.api.schemas import (
+    AnswerResponse,
+    QuestionRequest,
+    QuestionSetView,
+    QuestionView,
+)
 from warrant.db import ConnectionSource, close_pool, connection, open_pool
 from warrant.embedder_config import get_embedder_config
 from warrant.embedding import load_embedder
 from warrant.fixtures.client import get_model_client
 from warrant.fixtures.disk import DirectoryFixtureStore
 from warrant.fixtures.queries import read_query_vectors
+from warrant.fixtures.questions import QuestionSet, QuestionSetError, get_question_set
 from warrant.fixtures.recorder import GENERATION_DIRECTORY, QUERIES_DIRECTORY
 from warrant.ingest.control_ids import get_control_index
 from warrant.retrieval.corpus_check import verify_corpus
@@ -175,6 +181,28 @@ def get_resources(request: Request) -> AppResources:
     return request.app.state.resources
 
 
+def get_question_source() -> QuestionSet:
+    """The recorded question list the picker offers.
+
+    A dependency rather than a call in the route so a test can override it with a small list of its
+    own, the way the connection and the resources are overridden. Reads from disk (cached), not
+    from the database, so this endpoint answers before any corpus exists.
+
+    A malformed list is the server's own state, not the caller's request -- a `500` whose detail is
+    logged, like the retrieval failure the answer endpoint reports, rather than a traceback handed
+    to a caller who cannot act on it. Caught here because the read happens here, before the route
+    body runs.
+    """
+    try:
+        return get_question_set()
+    except QuestionSetError as error:
+        _logger.exception("question_list_unavailable")
+        raise HTTPException(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="The question list is not readable. See the server logs.",
+        ) from error
+
+
 @app.post("/answer", response_model=AnswerResponse)
 def answer(
     body: QuestionRequest,
@@ -200,3 +228,27 @@ def answer(
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
             detail="The corpus is not answerable. See the server logs.",
         ) from error
+
+
+@app.get("/questions", response_model=QuestionSetView)
+def questions(
+    question_set: Annotated[QuestionSet, Depends(get_question_source)],
+) -> QuestionSetView:
+    """The recorded question list, for a console to offer grouped by class.
+
+    Provisional, and the response carries the `version` that says so. Reading the list -- and
+    reporting a malformed one as a `500` -- is the dependency's job, so by here the set is valid and
+    all that is left is to map it across the boundary.
+    """
+    return QuestionSetView(
+        version=question_set.version,
+        questions=tuple(
+            QuestionView(
+                id=question.id,
+                question_class=question.question_class,
+                text=question.text,
+                because=question.because,
+            )
+            for question in question_set.questions
+        ),
+    )

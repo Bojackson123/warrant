@@ -53,3 +53,23 @@ export interface AnswerResponse {
   chunks: ChunkView[];
   decline: DeclineView | null;
 }
+
+// What a recorded question is for. `prior_conflict_trap` is the one the picker labels: not a
+// question the catalog fails to answer, but one whose answer most people already believe they know
+// and where the catalog says something else.
+export type QuestionClass = "answerable" | "out_of_corpus" | "prior_conflict_trap";
+
+// One recorded question, as the picker offers it. `class` mirrors the server's wire name, the
+// vocabulary the picker groups by; `because` is why it is in its class, shown for a trap.
+export interface QuestionView {
+  id: string;
+  class: QuestionClass;
+  text: string;
+  because: string;
+}
+
+// The recorded question list, and which list it is. `version` is provisional and shown as such.
+export interface QuestionSetView {
+  version: string;
+  questions: QuestionView[];
+}

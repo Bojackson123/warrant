@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { postAnswer, AnswerError } from "./api/client.ts";
-import type { AnswerResponse, CitationView } from "./api/types.ts";
+import { useEffect, useState } from "react";
+import { postAnswer, getQuestions, AnswerError } from "./api/client.ts";
+import type { AnswerResponse, CitationView, QuestionSetView } from "./api/types.ts";
 import { QueryBox } from "./components/QueryBox.tsx";
+import { QuestionPicker } from "./components/QuestionPicker.tsx";
 import { AnswerView } from "./components/AnswerView.tsx";
 import { ClausePanel } from "./components/ClausePanel.tsx";
 import { ModeBadge } from "./components/ModeBadge.tsx";
@@ -9,17 +10,27 @@ import { DeclineNotice } from "./components/DeclineNotice.tsx";
 import { MetaLine } from "./components/MetaLine.tsx";
 
 export function App() {
+  const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnswerResponse | null>(null);
   const [selected, setSelected] = useState<CitationView | null>(null);
+  const [questionSet, setQuestionSet] = useState<QuestionSetView | null>(null);
 
-  const ask = async (question: string) => {
+  // Loaded once. A failure here is not the reviewer's problem to see -- the query box still works
+  // without the picker -- so the list simply stays absent rather than surfacing an error.
+  useEffect(() => {
+    getQuestions()
+      .then(setQuestionSet)
+      .catch(() => setQuestionSet(null));
+  }, []);
+
+  const ask = async (asked: string) => {
     setPending(true);
     setError(null);
     setSelected(null);
     try {
-      const response = await postAnswer(question);
+      const response = await postAnswer(asked);
       setResult(response);
     } catch (caught) {
       setResult(null);
@@ -47,7 +58,15 @@ export function App() {
         </p>
       </header>
 
-      <QueryBox pending={pending} onAsk={ask} />
+      <QueryBox value={question} onChange={setQuestion} pending={pending} onAsk={ask} />
+
+      {questionSet && (
+        <QuestionPicker
+          version={questionSet.version}
+          questions={questionSet.questions}
+          onPick={setQuestion}
+        />
+      )}
 
       {error && (
         <div

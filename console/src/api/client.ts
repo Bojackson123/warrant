@@ -1,4 +1,4 @@
-import type { AnswerResponse } from "./types.ts";
+import type { AnswerResponse, QuestionSetView } from "./types.ts";
 
 // A request that reached the server but was refused for a reason the server named. The message is
 // meant to be shown to the reviewer as-is.
@@ -59,4 +59,22 @@ export async function postAnswer(question: string): Promise<AnswerResponse> {
   }
 
   return (await response.json()) as AnswerResponse;
+}
+
+// The recorded question list the picker offers. Rejects with a plain Error when the API is
+// unreachable or answers with an error status; the caller treats either as "no picker" and leaves
+// the query box working, so a question can still be typed without the list.
+export async function getQuestions(): Promise<QuestionSetView> {
+  let response: Response;
+  try {
+    response = await fetch("/questions");
+  } catch {
+    throw new Error("Could not reach the API to load the question list.");
+  }
+
+  if (!response.ok) {
+    throw new Error(`The API returned ${response.status} ${response.statusText}.`);
+  }
+
+  return (await response.json()) as QuestionSetView;
 }

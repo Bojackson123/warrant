@@ -19,6 +19,7 @@ from datetime import date
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from warrant.fixtures.questions import QuestionClass
 from warrant.settings import Mode
 
 
@@ -117,3 +118,32 @@ class AnswerResponse(BaseModel):
     chunks: tuple[ChunkView, ...]
 
     decline: DeclineView | None
+
+
+class QuestionView(BaseModel):
+    """One recorded question, as the console's picker needs it.
+
+    `class` on the wire, `question_class` in code -- the wire name is the vocabulary the picker
+    groups by and the one the source file uses, and the code name avoids the keyword. `because` is
+    carried so a trap can show what prior it conflicts with rather than being an unexplained tag.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str
+    question_class: QuestionClass = Field(serialization_alias="class")
+    text: str
+    because: str
+
+
+class QuestionSetView(BaseModel):
+    """The recorded question list a console offers, and which list it is.
+
+    `version` is here for the console to show: the list is provisional, and a reviewer looking at
+    it should be able to see which one it is rather than mistake it for a measured set.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    version: str
+    questions: tuple[QuestionView, ...]
