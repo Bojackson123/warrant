@@ -3,8 +3,73 @@
 Retrieval question answering over the NIST SP 800-53 catalog, where every claim in an
 answer is tagged to the control that warrants it and the clause can be read in one click.
 
-This README is a placeholder. Scope, non-goals, and the claims this project deliberately
-does not make are written once the walking skeleton runs end to end.
+The primary artefact is the evaluation harness, not the console. The console exists to make
+the retrieval visible; the thing being built is a measured account of what the retrieval does
+and does not get right. This document describes `v0.1`, a walking skeleton that runs end to
+end. Where something is planned rather than built, it says so.
+
+## Running it
+
+```
+docker compose up
+```
+
+brings up Postgres with the corpus already in it and serves the console at
+<http://localhost:8000>. There is no `.env`, no API key, no AWS account, and no network after
+the images are built. This is the default — **replay mode**: a fixed list of questions has
+been answered once by the real pipeline and recorded, and those recordings are what the
+console serves. Ask one of them, get an answer citing the controls that warrant it, and click
+a citation to read the clause.
+
+Setting `WARRANT_MODEL_API_KEY` and nothing else switches to **live mode**, which calls the
+model provider instead of replaying — the same corpus and the same retrieval, only the
+generation call changes. The developer commands under [Development](#development) below are
+for regenerating those recordings and rebuilding the corpus.
+
+## The catalog, and two things wrong with it
+
+The corpus is the NIST SP 800-53 Rev 5 control catalog, release 5.2.0, in OSCAL JSON,
+vendored into the repository rather than fetched at build time — vendoring is what lets the
+stack come up with no network. The pin lives in [`data/catalog/PINNED.md`](data/catalog/PINNED.md).
+About 1,200 controls, of which one in six is withdrawn; the 1,014 live ones are what gets
+embedded.
+
+Two things in the source needed handling, and both are recorded here because they are the
+evidence that the data was read rather than pointed at a loader.
+
+**Parameter placeholders.** Control prose ships with unresolved markers of the form
+`{{ insert: param, ac-02_odp.01 }}`. Every parameter in this release is organisation-defined
+— none carries a concrete value — so resolution always renders a labelled slot such as
+`[organization-defined frequency]`, never substitutes a value; embedding the raw braces would
+put machine noise into every vector and into every clause a reader clicks through to. The
+markers themselves are uniform in shape, but the spacing *around* them is not — the source
+carries a space before the punctuation that follows, `}} ; and` — so the resolver tidies that
+seam locally at each substitution site rather than sweeping the whole document, and a module
+named for parameter resolution is not left quietly rewriting unrelated punctuation.
+
+**Control identifiers.** Release 5.1.1 introduced a zero-padded label form (`AC-02`,
+`AC-02(03)`) alongside the non-padded one (`AC-2`, `AC-2(3)`) it kept for continuity, and
+5.2.0 carries both. The file is internally consistent — each control publishes several
+identifier forms and each is globally unique — but code, or an evaluation set, that keys on
+one form silently stops matching the other, and a silently corrupted eval is worse than none.
+Every identifier is normalised to the catalog's own non-padded object id (`ac-2`) for storage
+and matching, the human label (`AC-2`) is kept for what a reader sees, and the mapping is
+recorded so the two never blur. The canonical choice is written down in
+[`docs/decisions/control-ids.md`](docs/decisions/control-ids.md).
+
+## The embedding model
+
+`BAAI/bge-base-en-v1.5`, 768 dimensions. It was chosen by measurement rather than default
+because it is the one component with no cheap migration path — changing it re-embeds the
+corpus and re-records every fixture downstream. Four candidates were compared on CPU over the
+1,014-document corpus with 42 hand-written questions, retrieval only. It scored recall@5 =
+0.679, level with the best candidate (`nomic-embed-text-v1.5` at 0.690, a gap of half a
+question) while embedding the corpus faster and answering a query in under 80 ms. A decision
+rule written *before* the run takes the cheaper model where two are not measurably different.
+768 dimensions is the ceiling worth paying for: retrieval quality flattens above it and every
+dimension is fixture bytes committed twice. The full table, the pre-registered rule, and the
+harness commit needed to reproduce the numbers are in
+[`docs/decisions/embedder.md`](docs/decisions/embedder.md).
 
 ## Development
 
@@ -92,6 +157,36 @@ own pull request.
 The question list in `data/fixtures/questions.json` is provisional and labelled as such. It groups
 into the three classes a measured set will use — answerable, out of corpus, and questions whose
 obvious answer the catalog contradicts — but it has not been sized or validated against anything.
+
+## What this is not
+
+Some things are left out on purpose, each for a reason rather than for lack of time:
+
+- **Kubernetes.** One stateless service does not need an orchestrator; the deployment target
+  is managed containers, and the orchestration complexity was not justified.
+- **Multi-tenancy and authentication.** There are no users to keep apart.
+- **Agent tool-calling, fine-tuning, a second corpus, and an in-workflow critic loop.**
+- **LangChain.** LangGraph only, later, and conditional on there being a workflow that earns
+  a graph.
+- **Any vector database other than Postgres, and any ORM.** pgvector carries a few thousand
+  vectors without a second datastore, and the SQL is written directly.
+- **A hosted observability vendor** — a subscription for a stack torn down nightly.
+- **A reranker,** until a golden set shows retrieval is the bottleneck. Added before that it
+  is an unmeasured guess that also invalidates fixtures.
+
+And some claims are deliberately not made, stated here as commitments:
+
+- **It is not a compliance tool.** It answers questions about a public document. It does not
+  assess systems, produce SSPs, or determine whether anything is compliant.
+- **It offers no authoritative interpretation.** Where the catalog is ambiguous, so is the
+  answer.
+- **No scale claims.** A few thousand controls — this is a quality problem, not a volume one.
+- **No users, no production, no uptime.**
+- **CI does not gate answer quality at the pull request.** The recorded tests check that the
+  pipeline runs and that citations are valid, not that an answer is good. Measuring answer
+  quality is planned as a two-tier structure and is not built yet.
+- **Replay scores are reproducible, not live.** They are what a fixed pipeline produced once,
+  replayed — not a measurement taken fresh on each run.
 
 ## Licence
 
