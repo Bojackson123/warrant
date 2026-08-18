@@ -1,11 +1,22 @@
-# The stack a reviewer runs. Today it is the database alone; the API and the console join it
-# once they exist.
+# The stack a reviewer runs.
 #
-#     docker compose up -d db
+#     docker compose up
 #
-# No --env-file, no bootstrap script, no .env. Every value below has a default, and those
-# defaults are the ones src/warrant/settings.py already assumes. A reviewer who has read
-# nothing gets a working database, because the alternative is a project nobody runs.
+# brings up the database with the corpus already in it and serves the console at
+# http://localhost:8000. No --env-file, no bootstrap script, no .env, no API key, no network
+# after the images are built. Every value below has a default, and those defaults are the ones
+# src/warrant/settings.py already assumes, because the alternative is a project nobody runs.
+#
+# Three modes, and only the first needs nothing:
+#
+#   Replay (default)  nothing            reviewers, `docker compose up` -- recorded answers
+#   Live local        an API key         development, generating re-records -- calls the provider
+#   Deployed          an AWS account     not here; the deployment is a target, never the entry point
+#
+# Replay is what comes up with the command above. Live is the same command with a key in the
+# environment:  WARRANT_MODEL_API_KEY=sk-... docker compose up  -- nothing else changes, because the
+# key is the only thing that differs: both modes retrieve over the same corpus and only the
+# generation call is recorded or live.
 
 #  Without this the project name comes from the directory, which is only "warrant" by
 #  coincidence of where the repository was cloned.
@@ -14,10 +25,16 @@ name: warrant
 services:
 
   db:
-    #  Pinned to the patch, and to the Debian base rather than the floating alias, so that the
-    #  integration tests, this file and any later container all resolve one image. "pg17" would
-    #  quietly follow upstream onto a new base the day they change the default.
-    image: pgvector/pgvector:0.8.6-pg17-trixie
+    #  Postgres with the corpus baked into the image and restored on first init, rather than rebuilt
+    #  on the reviewer's CPU -- which would be minutes of embedding and, worse, would not reproduce
+    #  the exact vectors the recorded answers were retrieved against. See Dockerfile.db.
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    #  Still pinned, and named, so the built image is recognisable and the base it extends is the
+    #  patch-pinned one. "pg17" would quietly follow upstream onto a new base the day they change
+    #  the default.
+    image: warrant-db
 
     environment:
       #  Defaulted rather than required. The ${VAR:?} form, which fails the whole command when
@@ -46,8 +63,9 @@ services:
     healthcheck:
       #  -d is the point of this line. Plain pg_isready answers as soon as the server accepts
       #  connections, which during first init is several seconds before the database named
-      #  here exists -- and that gap is exactly the window an application starts in. $$ escapes
-      #  the substitution so the container's shell expands these, not Compose.
+      #  here exists and the snapshot has finished restoring into it -- and that gap is exactly the
+      #  window an application starts in. $$ escapes the substitution so the container's shell
+      #  expands these, not Compose.
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 3s
@@ -56,6 +74,35 @@ services:
 
 #  No restart: policy. A database that cannot start should stop and say so; restart: always
 #  turns a container that is failing for a reason into one that merely looks busy.
+
+  #  The API, serving the one endpoint, the question list, and the console's static assets from its
+  #  own origin. Replay mode unless a key is passed through. It verifies the restored corpus against
+  #  the pins at startup and refuses to serve a mismatched one, which is what makes depending on the
+  #  database being *healthy* enough: by then the snapshot is restored and there for it to check.
+  api:
+    build: .
+    image: warrant
+    environment:
+      #  The database is reached at the service name on the Compose network; the application's own
+      #  default points at localhost, which is right for a developer running it on the host and
+      #  wrong from inside a container.
+      WARRANT_DATABASE_URL: postgresql://warrant:warrant@db:5432/warrant
+      #  0.0.0.0 deliberately, the one place this project binds every interface. The port below is
+      #  published to loopback on the host, so the container has to accept the forwarded connection;
+      #  the application defaults to 127.0.0.1 for a developer running it directly, and this is the
+      #  same considered override the database's own published port takes.
+      WARRANT_API_HOST: "0.0.0.0"
+      #  Passed through from the host if set, absent otherwise -- and absent is replay mode, the
+      #  default a reviewer runs. Setting it is the only change live mode needs; nothing else here
+      #  moves. The :- keeps Compose quiet when it is unset rather than warning on every up.
+      WARRANT_MODEL_API_KEY: ${WARRANT_MODEL_API_KEY:-}
+    ports:
+      #  127.0.0.1, never 0.0.0.0. The endpoint has no authentication; a console reachable from the
+      #  network is not a default worth shipping to anyone who runs this.
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:

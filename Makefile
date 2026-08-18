@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again serve up console-install console console-test
+.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again serve up corpus-snapshot console-install console console-test
 
 sync:
 	uv sync
@@ -110,10 +110,21 @@ record-again:
 serve:
 	uv run python -m warrant.api
 
-# Brings up everything the compose file defines. That is the database alone today; the API and
-# the console join it once they exist.
+# Brings up the whole stack: the database with the corpus already restored into it, then the API
+# serving the console. Replay mode with no key and no network after the images build -- the path a
+# reviewer takes. `make db-down` (down -v) is how to start over from an empty volume.
 up:
 	docker compose up --build
+
+# Dumps the corpus from the running database into the snapshot the db image bakes. This is the
+# regeneration step, run when a pinned input the corpus is a function of moves -- the embedding
+# model, the chunker, parameter resolution. It only dumps: the database has to hold the current
+# corpus first, which means a fresh ingest, and doing that against the baked db image is fine
+# because ingest overwrites the restored rows in place. The full sequence is in
+# data/corpus/README.md. `--no-owner --no-privileges` so the dump restores cleanly under whatever
+# superuser the fresh container's init runs as, rather than one named after this machine.
+corpus-snapshot:
+	docker compose exec -T db pg_dump -U warrant -d warrant --no-owner --no-privileges | gzip > data/corpus/corpus.sql.gz
 
 # Installs the console's dependencies from its lockfile. Run once, like `make sync` for Python.
 console-install:

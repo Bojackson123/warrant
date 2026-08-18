@@ -29,6 +29,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 from warrant.api.pipeline import AppResources, answer_question
@@ -252,3 +253,16 @@ def questions(
             for question in question_set.questions
         ),
     )
+
+
+# The built console, served from this same origin so the browser talks to one host and the API
+# needs no CORS. Mounted at `/` and mounted last: Starlette matches routes in order, so the two API
+# routes above -- and FastAPI's own `/docs` and `/openapi.json` -- are found before this catch-all.
+# `html=True` serves `index.html` at `/`. Optional and off by default: with no directory configured
+# a developer runs the console under Vite, which proxies the two routes here; a container sets
+# `WARRANT_CONSOLE_DIST_PATH` to the directory its build stage produced. Checked here rather than
+# trusted, so a misconfigured path is a console that is absent rather than a server that will not
+# start.
+_console_dist = get_settings().console_dist_path
+if _console_dist is not None and _console_dist.is_dir():
+    app.mount("/", StaticFiles(directory=_console_dist, html=True), name="console")

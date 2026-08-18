@@ -87,6 +87,13 @@ class Settings(BaseSettings):
     # recorded call.
     manifest_path: Path = REPO_ROOT / "data" / "manifest.json"
 
+    # Where the built console's static assets live, served from the API's own origin so the browser
+    # talks to one host. `None` -- the default -- means serve nothing: a developer runs the console
+    # under its Vite dev server, which proxies the two API routes here. A container sets this to the
+    # directory the build stage produced, and the app mounts it at `/` once it exists. Held, not
+    # opened, like every other path here; the app checks the directory before mounting it.
+    console_dist_path: Path | None = None
+
     # Where the embedding weights are cached. `None` means the machine's ordinary Hugging Face
     # cache, which is where a developer who has used these models before already has them; a
     # container sets this to a path inside the image, populated at build time. Either way the

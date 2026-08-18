@@ -1,0 +1,31 @@
+# The build copies the paths it needs by name; this only trims the context sent to the daemon and
+# keeps host-built artefacts out of the image. The rule of thumb is anything a machine regenerates,
+# anything private, and anything the build produces for itself inside a stage.
+
+.git
+.gitignore
+
+# Private planning material. Belongs in no image any more than in git history.
+internal/
+Warrant_Project_Plan.md
+
+# The host's virtualenv and caches. The image builds its own; a copied one carries host absolute
+# paths and the wrong architecture's wheels.
+.venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.tokenizer-cache/
+
+# Built by the console stage inside the image, never copied from the host.
+console/node_modules/
+console/dist/
+
+# The database volume, were it ever bind-mounted here.
+pgdata/
+
+# Regenerated docs and local env files.
+*.env.local
+.env

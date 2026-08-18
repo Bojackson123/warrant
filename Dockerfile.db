@@ -1,0 +1,20 @@
+# Postgres with the corpus baked in, restored on first boot rather than rebuilt.
+#
+# The corpus vectors are deterministic -- one catalog, one pinned model, one chunker -- but
+# rebuilding them means embedding a thousand controls on CPU, minutes a reviewer should not wait
+# and, worse, minutes on *their* CPU: two machines can rank two near-tied chunks the other way, and
+# a recorded question that then retrieves a different set renders a prompt no recording matches, so
+# replay would decline where it should answer. The snapshot is the exact corpus the fixtures were
+# recorded against, carried here so every machine serves those same vectors.
+#
+# `/docker-entrypoint-initdb.d` runs only when the data directory is empty: on a first `up`, and
+# again after `down -v`. The entrypoint gunzips a `.sql.gz` and runs it against the freshly created
+# database before the server accepts a TCP connection, so by the time the healthcheck passes the
+# corpus is present -- which is what lets the API depend on `service_healthy` and find it there.
+#
+# A stale snapshot is not trusted quietly: the dump carries the provenance of what built it, and the
+# API compares that against the pins at startup and refuses to serve a corpus built by a superseded
+# model or chunker. Regenerating it when a pin moves is documented in data/corpus/README.md.
+FROM pgvector/pgvector:0.8.6-pg17-trixie
+
+COPY data/corpus/corpus.sql.gz /docker-entrypoint-initdb.d/corpus.sql.gz

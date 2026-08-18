@@ -14,3 +14,8 @@ tools/bakeoff/queries.jsonl  -text
 # in it a person can read, and a textual diff of three thousand bytes of floats buries the
 # recordings that are meant to be reviewed.
 data/fixtures/queries/vectors.npy  -text -diff
+
+# The baked corpus snapshot, a gzip of the ingested vectors and their provenance. Binary for the
+# same reason the query vectors are: a rewritten byte is a corrupt restore. `-diff` because a gzip
+# stream is not something a person reads in a review.
+data/corpus/corpus.sql.gz  -text -diff
