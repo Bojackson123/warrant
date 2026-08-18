@@ -1,7 +1,7 @@
 # Entry points. Every recipe is a single command so that it behaves the same whether make
 # hands it to sh or to cmd.exe, and CI calls these rather than repeating the flags.
 
-.PHONY: sync lint format typecheck test db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again serve up corpus-snapshot console-install console console-test
+.PHONY: sync lint format typecheck test check db-up db-down migrate manifest manifest-write catalog chunks model tokenizer ingest ask record record-queries record-again serve up corpus-snapshot console-install console console-test
 
 sync:
 	uv sync
@@ -17,6 +17,15 @@ typecheck:
 
 test:
 	uv run pytest
+
+# Everything the CI gate checks, in one local command: lint, types, the Python suite (unit
+# and real-Postgres integration), then the console suite. Assumes both toolchains are present
+# and `make model`/`make tokenizer` have run, so the model- and tokenizer-marked tests run
+# rather than skip. CI splits these across two jobs instead of calling this, because the
+# console toolchain lives in its own job -- so `make test` and `make console-test` stay
+# runnable on their own and this is only the local convenience that runs all of it at once.
+check:
+	uv run ruff check . && uv run ruff format --check . && uv run pyright && uv run pytest && npm --prefix console test
 
 db-up:
 	docker compose up -d db

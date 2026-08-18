@@ -1,0 +1,82 @@
+# The automated gate: lint, types, the Python suite (unit + real-Postgres integration) and
+# the console's Vitest suite. Runs on every push and pull request, green with no secrets and
+# no API key -- WARRANT_MODEL_API_KEY is left unset, which is replay mode. This is a pass/fail
+# test gate and nothing more; no eval metric is computed here.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# A newer push to the same ref cancels an in-flight run for it, so the queue reflects the tip
+# rather than every intermediate commit.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python (lint, types, pytest)
+    runs-on: ubuntu-latest
+    # Deterministic cache locations for the two one-off fetches, so actions/cache can key them
+    # to the pins that decide them rather than to a path that moves between runners.
+    env:
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
+      TIKTOKEN_CACHE_DIR: ${{ github.workspace }}/.cache/tiktoken
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sync the environment
+        run: uv sync --frozen
+
+      # The embedding weights and the tokenizer encoding, keyed on the files that pin them: a
+      # changed pin misses the cache and re-fetches, an unchanged one restores. These fetches
+      # are the only network the tests touch beyond installs, which is why they are cached.
+      - name: Cache model weights and tokenizer encoding
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.cache/huggingface
+            ${{ github.workspace }}/.cache/tiktoken
+          key: weights-${{ runner.os }}-${{ hashFiles('data/embedder.json', 'data/model.json') }}
+
+      # Populate the caches on a miss and re-verify them offline on a hit; both commands are
+      # idempotent, so a warm cache makes them cheap rather than skipped.
+      - name: Fetch weights and encoding
+        run: make model && make tokenizer
+
+      - name: Lint
+        run: make lint
+
+      - name: Typecheck
+        run: make typecheck
+
+      # Integration tests spin real Postgres through testcontainers against the runner's Docker
+      # daemon and tear it down; model- and tokenizer-marked tests now run rather than skip
+      # because the caches above are warm.
+      - name: Test
+        run: make test
+
+  console:
+    name: Console (vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: console/package-lock.json
+
+      - name: Install console dependencies
+        run: make console-install
+
+      - name: Test the console
+        run: make console-test
